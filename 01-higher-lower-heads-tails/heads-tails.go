@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
-	"math"
 	"math/rand"
 	"os"
+	"os/exec"
 	"time"
 	"unicode"
 )
@@ -13,7 +13,7 @@ import (
 const (
 	Win int = iota
 	Lose
-	Exit
+	End
 )
 
 // Show input dialog and scan user's input until
@@ -42,6 +42,12 @@ func CoinToss() string {
 	return "TAILS"
 }
 
+// Apply ANSI bold style to string, formatting it first.
+func Boldify(formatStr string, a ...interface{}) string {
+	var str = fmt.Sprintf(formatStr, a...)
+	return fmt.Sprintf("\u001b[37;1m%s\u001b[0m", str)
+}
+
 // Print given number of `.`s, waiting 1 second after each.
 func PrintDotAndSleep(n int) {
 	for i := 0; i < n; i++ {
@@ -50,10 +56,11 @@ func PrintDotAndSleep(n int) {
 	}
 }
 
-// Apply ANSI bold style to string, formatting it first.
-func Boldify(formatStr string, a ...interface{}) string {
-	var str = fmt.Sprintf(formatStr, a...)
-	return fmt.Sprintf("\u001b[37;1m%s\u001b[0m", str)
+// Clear screen and resume output from top
+func ClearScreen() {
+	var cmd = exec.Command("clear")
+	cmd.Stdout = os.Stdout
+	cmd.Run()
 }
 
 // Play a round worth given points.
@@ -61,12 +68,12 @@ func Boldify(formatStr string, a ...interface{}) string {
 // Return boolean representing whether guess was right or not.
 func PlayRound(points int) int {
 	// Get user's coin side choice
-	var text = "! Please choose Heads (h), Tails (t) or exit (e)"
+	var text = "! Please choose Heads (h), Tails (t) or end (e)"
 	var options = map[rune]bool{'h': true, 't': true, 'e': true}
 	var c = GetAnswer(text, options)
 	if c == 'e' {
-		// Exit (e) was chosen
-		return Exit
+		// End (e) was chosen
+		return End
 	}
 	var option = "HEADS"
 	if c == 't' {
@@ -84,15 +91,16 @@ func PlayRound(points int) int {
 
 	// Show result (match or not)
 	if outcome == option {
-		fmt.Print("> You win!")
+		fmt.Print("> You win! Your score has been doubled.")
 		return Win
 	} else {
-		fmt.Print("> You lose...\n")
+		fmt.Print("> You lose...")
 		return Lose
 	}
 }
 
 func main() {
+	ClearScreen()
 	fmt.Println("**********************")
 	fmt.Println("*** HEADS or TAILS ***")
 	fmt.Println("**********************")
@@ -119,24 +127,25 @@ func main() {
 	} else {
 		fmt.Fscan(file, &highScore)
 	}
-	fmt.Printf("> Your high score is: %s\n",
-		Boldify("%d point(s)", highScore))
-	time.Sleep(time.Second)
+	fmt.Printf("> Your high score is: %s", Boldify("%d point(s)", highScore))
+	time.Sleep(2 * time.Second)
 
 	// Main game loop
-	var score = 0
+	var score = 1
 	for {
+		ClearScreen()
 		fmt.Printf("\n# Current score: %s\n", Boldify("%d point(s)", score))
-		var roundPoints = int(math.Max(float64(2*score), 1))
+		var roundPoints = 2 * score
 		var result = PlayRound(roundPoints)
-		if result == Exit {
+		if result == End {
 			fmt.Println()
 			break
 		}
-		time.Sleep(time.Second)
+		time.Sleep(2 * time.Second)
 		fmt.Println()
 		if result == Lose {
 			score = 0
+			fmt.Println()
 			break
 		}
 		score = roundPoints
@@ -157,6 +166,6 @@ func main() {
 		fmt.Fprint(file, score)
 	}
 	fmt.Println()
-	time.Sleep(2 * time.Second)
+	time.Sleep(time.Second)
 	fmt.Println()
 }
