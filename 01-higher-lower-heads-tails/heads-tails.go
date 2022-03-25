@@ -4,8 +4,16 @@ import (
 	"fmt"
 	"math"
 	"math/rand"
+	"os"
 	"time"
 	"unicode"
+)
+
+// Possible round outcomes
+const (
+	Win int = iota
+	Lose
+	Exit
 )
 
 // Show input dialog and scan user's input until
@@ -35,8 +43,8 @@ func CoinToss() string {
 }
 
 // Print given number of `.`s, waiting 1 second after each.
-func PrintDotAndSleep(n uint) {
-	for i := uint(0); i < n; i++ {
+func PrintDotAndSleep(n int) {
+	for i := 0; i < n; i++ {
 		fmt.Print(".")
 		time.Sleep(time.Second)
 	}
@@ -51,14 +59,14 @@ func Boldify(formatStr string, a ...interface{}) string {
 // Play a round worth given points.
 //
 // Return boolean representing whether guess was right or not.
-func PlayRound(points uint) bool {
+func PlayRound(points int) int {
 	// Get user's coin side choice
 	var text = "! Please choose Heads (h), Tails (t) or exit (e)"
 	var options = map[rune]bool{'h': true, 't': true, 'e': true}
 	var c = GetAnswer(text, options)
 	if c == 'e' {
 		// Exit (e) was chosen
-		return false
+		return Exit
 	}
 	var option = "HEADS"
 	if c == 't' {
@@ -77,10 +85,10 @@ func PlayRound(points uint) bool {
 	// Show result (match or not)
 	if outcome == option {
 		fmt.Print("> You win!")
-		return true
+		return Win
 	} else {
 		fmt.Print("> You lose...\n")
-		return false
+		return Lose
 	}
 }
 
@@ -90,30 +98,45 @@ func main() {
 	fmt.Println("**********************")
 	fmt.Println()
 
-	// Get player's name and their high score
+	// Scan player's name
 	var player string
-	var highScore uint = 0
 	for {
 		fmt.Print("! Please input your name: ")
-		fmt.Scanf("%s", &player)
+		fmt.Scan(&player)
 		if len(player) > 0 {
 			break
 		}
 	}
 	fmt.Printf("> Welcome, %s!\n", Boldify(player))
 	time.Sleep(time.Second)
-	fmt.Printf("> Your high score is: %s\n", Boldify("%d points", 0))
+
+	// Read player's high score from file, creating it if nonexistent
+	var highScore = 0
+	var filename = fmt.Sprintf("high-scores/%s-heads.sco", player)
+	file, err := os.Open(filename)
+	if err != nil {
+		os.WriteFile(filename, []byte{'0'}, 0644)
+	} else {
+		fmt.Fscan(file, &highScore)
+	}
+	fmt.Printf("> Your high score is: %s\n",
+		Boldify("%d point(s)", highScore))
 	time.Sleep(time.Second)
 
 	// Main game loop
-	var score uint = 0
+	var score = 0
 	for {
 		fmt.Printf("\n# Current score: %s\n", Boldify("%d point(s)", score))
-		var roundPoints = uint(math.Max(float64(2*score), 1))
-		var ok = PlayRound(roundPoints)
+		var roundPoints = int(math.Max(float64(2*score), 1))
+		var result = PlayRound(roundPoints)
+		if result == Exit {
+			fmt.Println()
+			break
+		}
 		time.Sleep(time.Second)
 		fmt.Println()
-		if !ok {
+		if result == Lose {
+			score = 0
 			break
 		}
 		score = roundPoints
@@ -121,13 +144,19 @@ func main() {
 	// Show final score and check for new high
 	var newHigh = false
 	if score > highScore {
-		highScore = score
 		newHigh = true
+		highScore = score
 	}
 	fmt.Printf("# Final score: %s\n", Boldify("%d point(s)", score))
-	fmt.Printf("#  High score: %s", Boldify("%d point(s)", score))
+	fmt.Printf("#  High score: %s", Boldify("%d point(s)", highScore))
 	if newHigh {
-		fmt.Print(" (NEW HIGH!)")
+		// Write new high score to file
+		fmt.Println(" (NEW HIGH)")
+		fmt.Print("> Congratulations! You got a new high score!")
+		file, err = os.OpenFile(filename, os.O_WRONLY, 0644)
+		fmt.Fprint(file, score)
 	}
-	fmt.Print("\n\n")
+	fmt.Println()
+	time.Sleep(2 * time.Second)
+	fmt.Println()
 }
