@@ -18,7 +18,9 @@ func GetAnswer(text string, options map[rune]bool) rune {
 		var input string
 		fmt.Printf("%s: ", text)
 		fmt.Scanln(&input)
-		c = unicode.ToLower(rune(input[0]))
+		if len(input) > 0 {
+			c = unicode.ToLower(rune(input[0]))
+		}
 	}
 	return c
 }
@@ -41,8 +43,8 @@ func PrintDotAndSleep(n uint) {
 }
 
 // Apply ANSI bold style to string, formatting it first.
-func Boldify(format_str string, a ...interface{}) string {
-	var str = fmt.Sprintf(format_str, a...)
+func Boldify(formatStr string, a ...interface{}) string {
+	var str = fmt.Sprintf(formatStr, a...)
 	return fmt.Sprintf("\u001b[37;1m%s\u001b[0m", str)
 }
 
@@ -86,19 +88,46 @@ func main() {
 	fmt.Println("**********************")
 	fmt.Println("*** HEADS or TAILS ***")
 	fmt.Println("**********************")
+	fmt.Println()
+
+	// Get player's name and their high score
+	var player string
+	var highScore uint = 0
+	for {
+		fmt.Print("! Please input your name: ")
+		fmt.Scanf("%s", &player)
+		if len(player) > 0 {
+			break
+		}
+	}
+	fmt.Printf("> Welcome, %s!\n", Boldify(player))
+	time.Sleep(time.Second)
+	fmt.Printf("> Your high score is: %s\n", Boldify("%d points", 0))
+	time.Sleep(time.Second)
 
 	// Main game loop
 	var score uint = 0
 	for {
 		fmt.Printf("\n# Current score: %s\n", Boldify("%d point(s)", score))
-		var round_points = uint(math.Max(float64(2*score), 1))
-		var ok = PlayRound(round_points)
+		var roundPoints = uint(math.Max(float64(2*score), 1))
+		var ok = PlayRound(roundPoints)
 		time.Sleep(time.Second)
 		fmt.Println()
 		if !ok {
 			break
 		}
-		score = round_points
+		score = roundPoints
 	}
-	fmt.Printf("# Final score: %s\n\n", Boldify("%d point(s)", score))
+	// Show final score and check for new high
+	var newHigh = false
+	if score > highScore {
+		highScore = score
+		newHigh = true
+	}
+	fmt.Printf("# Final score: %s\n", Boldify("%d point(s)", score))
+	fmt.Printf("#  High score: %s", Boldify("%d point(s)", score))
+	if newHigh {
+		fmt.Print(" (NEW HIGH!)")
+	}
+	fmt.Print("\n\n")
 }
