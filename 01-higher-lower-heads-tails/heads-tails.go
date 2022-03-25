@@ -9,12 +9,12 @@ import (
 )
 
 // Show input dialog and scan user's input until
-// either `op1`` or `op2` are entered.
+// any of the options are entered.
 //
 // Return user's answer.
-func GetAnswer(text string, op1 rune, op2 rune) rune {
+func GetAnswer(text string, options map[rune]bool) rune {
 	var c rune
-	for c != op1 && c != op2 {
+	for !options[c] {
 		var input string
 		fmt.Printf("%s: ", text)
 		fmt.Scanln(&input)
@@ -51,8 +51,13 @@ func Boldify(format_str string, a ...interface{}) string {
 // Return boolean representing whether guess was right or not.
 func PlayRound(points uint) bool {
 	// Get user's coin side choice
-	var text = "! Please choose Heads (h) or Tails (t)"
-	var c = GetAnswer(text, 'h', 't')
+	var text = "! Please choose Heads (h), Tails (t) or exit (e)"
+	var options = map[rune]bool{'h': true, 't': true, 'e': true}
+	var c = GetAnswer(text, options)
+	if c == 'e' {
+		// Exit (e) was chosen
+		return false
+	}
 	var option = "HEADS"
 	if c == 't' {
 		option = "TAILS"
@@ -72,7 +77,7 @@ func PlayRound(points uint) bool {
 		fmt.Print("> You win!")
 		return true
 	} else {
-		fmt.Print("> You lose...")
+		fmt.Print("> You lose...\n")
 		return false
 	}
 }
@@ -85,7 +90,7 @@ func main() {
 	// Main game loop
 	var score uint = 0
 	for {
-		fmt.Printf("\n# Current score: %s\n", Boldify("%d points", score))
+		fmt.Printf("\n# Current score: %s\n", Boldify("%d point(s)", score))
 		var round_points = uint(math.Max(float64(2*score), 1))
 		var ok = PlayRound(round_points)
 		time.Sleep(time.Second)
@@ -95,5 +100,5 @@ func main() {
 		}
 		score = round_points
 	}
-	fmt.Printf("\n# Final score: %s\n\n", Boldify("%d points", score))
+	fmt.Printf("# Final score: %s\n\n", Boldify("%d point(s)", score))
 }
