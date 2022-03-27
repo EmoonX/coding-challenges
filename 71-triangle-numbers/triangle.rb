@@ -7,7 +7,7 @@ end
 # Check if wrong argument count or negative number were passed
 if ARGV.length != 1 or ARGV[0].to_i < 0
   puts("  Usage: ruby triangle.rb N")
-  puts("         (n must be > 0)")
+  puts("         (n must be >= 0)")
   puts("     Ex: ruby triangle.rb 100")
   puts(" Output: 5050")
   Kernel.exit(1)
