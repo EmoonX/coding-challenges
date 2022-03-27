@@ -1,0 +1,15 @@
+00: C
+01: C++
+02: C#
+03: Java
+04: Kotlin
+05: Go
+06: Python
+07: Ruby
+08: JavaScript
+09: Swift
+10: Lua
+11: Rust
+12: Fortran
+13: Ada
+14: Scala
