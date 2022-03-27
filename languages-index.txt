@@ -8,8 +8,8 @@
 07: Ruby
 08: JavaScript
 09: Swift
-10: Lua
-11: Rust
+10: Rust
+11: Lua
 12: Fortran
 13: Ada
 14: Scala
