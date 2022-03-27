@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Random;
 
 class Knight {
@@ -9,11 +10,34 @@ class Knight {
         int i, j;
         ArrayList<Edge> edges;
         boolean visited = false;
+        Integer numMoves;
 
-        public Node(int i, int j) {
+        /** Builds a node with given position and empty edge list. */
+        Node(int i, int j) {
             this.i = i;
             this.j = j;
             edges = new ArrayList<>();
+        }
+
+        /** Either increments or decrements valid move
+            counter on reachable nodes. */
+        void updateNumMoves(int delta) {
+            for (Edge edge : edges) {
+                Node v = board[edge.iTo][edge.jTo];
+                v.numMoves += delta;
+            }
+        }
+
+        /** Sorts edges on increasing order of
+            {@code numMoves} of node they point to. */
+        void sortEdges() {
+            Collections.sort(edges, new Comparator<Edge>() {
+                public int compare(Edge e1, Edge e2) {
+                    Node u = board[e1.iTo][e1.jTo];
+                    Node v = board[e2.iTo][e2.jTo];
+                    return u.numMoves.compareTo(v.numMoves);
+                }
+            });
         }
     }
 
@@ -21,7 +45,8 @@ class Knight {
     static class Edge {
         int iTo, jTo;
 
-        public Edge(int iTo, int jTo) {
+        /** Builds edge pointing to position {@code (iTo, jTo)} */
+        Edge(int iTo, int jTo) {
             this.iTo = iTo;
             this.jTo = jTo;
         }
@@ -38,6 +63,9 @@ class Knight {
 
     /** Node 2D matrix representing nxn chess board. */
     static Node[][] board;
+
+    /** Whether Warnsdorff's heuristic should be used or not. */
+    static boolean useWarnsdorff;
 
     /**
      * Builds graph matrix for a <b>nxn</b> board.
@@ -68,6 +96,16 @@ class Knight {
         }
     }
 
+    /** Resets graph nodes: unvisited and all moves available. */
+    static void resetGraph() {
+        for (Node[] row: board) {
+            for (Node node: row) {
+                node.visited = false;
+                node.numMoves = node.edges.size();
+            }
+        }
+    }
+
     /**
      * Searches for a Knight's tour starting at node {@code r}.
      * <p>
@@ -77,8 +115,6 @@ class Knight {
      * <p>
      * Search ends successfully if all nodes are added to the list;
      * otherwise, there are no more valid moves (i.e reachable nodes).
-     * All visited nodes are unmarked as so at recursion's end (save
-     * from the very first one, which must be unmarked by the caller).
      */
     static boolean findTour(Node r, ArrayList<Node> tour) {
         r.visited = true;
@@ -86,28 +122,24 @@ class Knight {
         if (tour.size() == n*n) {
             return true;
         }
+        r.updateNumMoves(-1);
+        if (useWarnsdorff) {
+            r.sortEdges();
+        }
         for (Edge edge : r.edges) {
             Node v = board[edge.iTo][edge.jTo];
             if (v.visited) {
                 continue;
             }
             boolean found = findTour(v, tour);
-            v.visited = false;
             if (found) { 
                 return true;
             }
         }
+        r.visited = false;
         tour.remove(tour.size() - 1);
+        r.updateNumMoves(+1);
         return false;
-    }
-
-    /** Move cursor to position ({@code x}, {@code y})
-        on screen and print char {@code c} on it. */
-    static void moveCursorAndPrint(int x, int y, char c) {
-        final char ESC_CODE = 0x1B;
-        System.out.printf("%c[%d;%df", ESC_CODE, x, y);
-        System.out.print(c);
-        System.out.printf("%c[%d;%df", ESC_CODE, x, y);
     }
 
     /**
@@ -155,15 +187,25 @@ class Knight {
             int y = node.j + 5;
             char c = (k == 0) ? 'S' : 'E';
             moveCursorAndPrint(x, y, c);
-            Thread.sleep(400);
+            Thread.sleep(10);
             last = node;
         }
         moveCursorAndPrint(n + 6, 0, '\n');
     }
 
+    /** Move cursor to position ({@code x}, {@code y})
+        on screen and print char {@code c} on it. */
+    static void moveCursorAndPrint(int x, int y, char c) {
+        final char ESC_CODE = 0x1B;
+        System.out.printf("%c[%d;%df", ESC_CODE, x, y);
+        System.out.print(c);
+        System.out.printf("%c[%d;%df", ESC_CODE, x, y);
+    }
+
     public static void main(String[] args)
             throws InterruptedException {
-        int n = 5;
+        int n = 20;
+        useWarnsdorff = true;
         buildGraph(n);
 
         boolean found = false;
@@ -174,8 +216,8 @@ class Knight {
             Node r = board[i][j];
             ArrayList<Node> tour = new ArrayList<>();
             System.out.printf("(%d, %d) -> ", i, j);
+            resetGraph();
             found = findTour(r, tour);
-            r.visited = false;
             if (found) {
                 System.out.println("Found!");
                 Thread.sleep(1200);
