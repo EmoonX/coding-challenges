@@ -1,5 +1,6 @@
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Random;
 
 class Knight {
 
@@ -61,6 +62,8 @@ class Knight {
                     Edge edge = new Edge(iTo, jTo);
                     node.edges.add(edge);
                 }
+                // Shuffle edge list for randomness :)
+                Collections.shuffle(node.edges);
             }
         }
     }
@@ -116,8 +119,11 @@ class Knight {
      */
     static void drawTour(ArrayList<Node> tour)
             throws InterruptedException {
+
         System.out.print("\033\143");
         System.out.println("[Knight's tour]\n");
+
+        // Draw empty board and borders
         for (int i = -1; i <= n; i++) {
             System.out.print("   ");
             for (int j = -1; j <= n; j++) {
@@ -135,6 +141,8 @@ class Knight {
             }
             System.out.println();
         }
+        // Print knight positions as it moves across the board,
+        // waiting a little bit (with `sleep()`) between each move
         Node last = null;
         for (int k = 0; k < n*n; k++) {
             if (k > 1) {
@@ -147,7 +155,7 @@ class Knight {
             int y = node.j + 5;
             char c = (k == 0) ? 'S' : 'E';
             moveCursorAndPrint(x, y, c);
-            Thread.sleep(800);
+            Thread.sleep(400);
             last = node;
         }
         moveCursorAndPrint(n + 6, 0, '\n');
@@ -155,25 +163,26 @@ class Knight {
 
     public static void main(String[] args)
             throws InterruptedException {
-        int n = 8;
+        int n = 5;
         buildGraph(n);
 
         boolean found = false;
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
-                Node r = board[i][j];
-                ArrayList<Node> tour = new ArrayList<>();
-                System.out.printf("(%d, %d) -> ", i, j);
-                found = findTour(r, tour);
-                r.visited = false;
-                if (found) {
-                    System.out.println("Found!");
-                    Thread.sleep(1500);
-                    drawTour(tour);
-                    return;
-                } else {
-                    System.out.println("Not found...");
-                }
+        Random rand = new Random();
+        for (int count = 0; count < 100; count++) {
+            int i = rand.nextInt(n);
+            int j = rand.nextInt(n);
+            Node r = board[i][j];
+            ArrayList<Node> tour = new ArrayList<>();
+            System.out.printf("(%d, %d) -> ", i, j);
+            found = findTour(r, tour);
+            r.visited = false;
+            if (found) {
+                System.out.println("Found!");
+                Thread.sleep(1200);
+                drawTour(tour);
+                return;
+            } else {
+                System.out.println("Not found...");
             }
         }
         System.out.printf("No available tours for %dx%d... :(\n", n, n);
