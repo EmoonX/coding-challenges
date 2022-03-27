@@ -1,3 +1,4 @@
+import java.io.IOException;
 import java.util.ArrayList;
 
 class Knight {
@@ -84,37 +85,97 @@ class Knight {
         }
         for (Edge edge : r.edges) {
             Node v = board[edge.iTo][edge.jTo];
-            if (!v.visited) {
-                boolean found = findTour(v, tour);
-                v.visited = false;
-                if (found) { 
-                    return true;
-                }
+            if (v.visited) {
+                continue;
+            }
+            boolean found = findTour(v, tour);
+            v.visited = false;
+            if (found) { 
+                return true;
             }
         }
         tour.remove(tour.size() - 1);
         return false;
     }
 
-    public static void main(String[] args) {
-        int n = 5;
+    /** Move cursor to position ({@code x}, {@code y})
+        on screen and print char {@code c} on it. */
+    static void moveCursorAndPrint(int x, int y, char c) {
+        final char ESC_CODE = 0x1B;
+        System.out.printf("%c[%d;%df", ESC_CODE, x, y);
+        System.out.print(c);
+        System.out.printf("%c[%d;%df", ESC_CODE, x, y);
+    }
+
+    /**
+     * Visually and progressively draws tour on screen.
+     * <p>
+     * {@code "S"} indicates starting position, {@code "."}
+     * unvisited squares, {@code "#"} already visited squares,
+     * and {@code "E"} where the knight is currently on.
+     */
+    static void drawTour(ArrayList<Node> tour)
+            throws InterruptedException {
+        System.out.print("\033\143");
+        System.out.println("[Knight's tour]\n");
+        for (int i = -1; i <= n; i++) {
+            System.out.print("   ");
+            for (int j = -1; j <= n; j++) {
+                char c = '.';
+                if (i == -1 || i == n || j == -1 || j == n) {
+                    if (i == j || i*j == -n) {
+                        c = '+';
+                    } else if (i == -1 || i == n) {
+                        c = '-';
+                    } else {
+                        c = '|';
+                    }
+                }
+                System.out.print(c);
+            }
+            System.out.println();
+        }
+        Node last = null;
+        for (int k = 0; k < n*n; k++) {
+            if (k > 1) {
+                int xLast = last.i + 4;
+                int yLast = last.j + 5;
+                moveCursorAndPrint(xLast, yLast, '#');
+            }
+            Node node = tour.get(k);
+            int x = node.i + 4;
+            int y = node.j + 5;
+            char c = (k == 0) ? 'S' : 'E';
+            moveCursorAndPrint(x, y, c);
+            Thread.sleep(800);
+            last = node;
+        }
+        moveCursorAndPrint(n + 6, 0, '\n');
+    }
+
+    public static void main(String[] args)
+            throws InterruptedException {
+        int n = 8;
         buildGraph(n);
+
+        boolean found = false;
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
                 Node r = board[i][j];
                 ArrayList<Node> tour = new ArrayList<>();
-                System.out.printf("(%d, %d) ->", i, j);
-                boolean found = findTour(r, tour);
+                System.out.printf("(%d, %d) -> ", i, j);
+                found = findTour(r, tour);
                 r.visited = false;
                 if (found) {
-                    for (Node v : tour) {
-                        System.out.printf(" (%d, %d)", v.i, v.j);
-                    }
-                    System.out.println();
+                    System.out.println("Found!");
+                    Thread.sleep(1500);
+                    drawTour(tour);
+                    return;
                 } else {
-                    System.out.println(" Not found...");
+                    System.out.println("Not found...");
                 }
             }
-        } 
+        }
+        System.out.printf("No available tours for %dx%d... :(\n", n, n);
     }
 }
