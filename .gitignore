@@ -2,3 +2,8 @@
 *.out
 *.jar
 *.class
+
+# C#
+bin
+obj
+*.csproj
