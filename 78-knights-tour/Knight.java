@@ -64,6 +64,9 @@ class Knight {
     /** Whether Warnsdorff's heuristic should be used or not. */
     public static boolean useWarnsdorff;
 
+    /** Time to sleep (in milliseconds) between draw stages. */
+    public static int sleepTime;
+
     /** Horizontal deltas for knight moves. */
     static final int[] iMoves = {-2, -2, -1, -1, +1, +1, +2, +2};
 
@@ -80,8 +83,7 @@ class Knight {
      * corresponding to reachable squares when playing
      * a valid knight move from said position.
      */
-    public static void buildGraph(int _n) {
-        n = _n;
+    public static void buildGraph() {
         board = new Node[n][n];
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
@@ -102,9 +104,9 @@ class Knight {
         }
     }
 
-    /** Resets graph nodes (unvisited and all
+    /** Initializes graph nodes (unvisited and all
         moves available) and fail counter. */
-    public static void resetGraph() {
+    public static void initGraph() {
         for (Node[] row: board) {
             for (Node node: row) {
                 node.visited = false;
@@ -123,7 +125,7 @@ class Knight {
      * <p>
      * Search ends successfully if all nodes are added to the list;
      * otherwise, either there are no more valid moves (i.e reachable
-     * nodes) or search reached the {@code 1e6} failed attempts threshold.
+     * nodes) or search reached the failed attempts threshold.
      */
     public static boolean findTour(Node r, ArrayList<Node> tour) {
         r.visited = true;
@@ -203,7 +205,6 @@ class Knight {
         // waiting a little bit (with `sleep()`) between each move
         // (extra iteration at the end if closed, to insert '!')
         Node last = null;
-        int sleepTime = Math.min(16000 / (n*n), 500);
         for (int k = 0; k <= n*n; k++) {
             if (k == n*n && !closed) {
                 break;
@@ -224,7 +225,7 @@ class Knight {
         moveCursorAndPrint(n + 6, 0, '\n', true);
     }
 
-    /** Move cursor to position ({@code x}, {@code y}) on screen
+    /** Moves cursor to position ({@code x}, {@code y}) on screen
         and print char {@code c} on it (w/ optional highlight). */
     static void moveCursorAndPrint(
             int x, int y, char c, boolean highlight) {
@@ -238,21 +239,35 @@ class Knight {
 
     public static void main(String[] args)
             throws InterruptedException {
-        int n = 60;
-        closed = true;
-        useWarnsdorff = true;
-        buildGraph(n);
 
-        boolean found = false;
+        // Parse args and build graph
+        if (args.length == 0) {
+            System.out.println(
+                " Usage: java Knight N [useWarnsdorff] [closed]");
+            System.out.println("    Ex: java Knight 8");
+            System.out.println("    Ex: java Knight 12 true true");
+            return;
+        }
+        n = Integer.parseInt(args[0]);
+        useWarnsdorff = (args.length >= 2) ?
+            Boolean.valueOf(args[1]) : false;
+        closed = (args.length >= 3) ?
+            Boolean.valueOf(args[2]) : false;
+        sleepTime = (args.length >= 4) ?
+            Integer.parseInt(args[3]) : Math.min(16000 / (n*n), 500);
+        buildGraph();
+
+        // Search for tours in random starting (i, j) positions.
+        // Abort if not tours are found after several tries.
         Random rand = new Random();
-        for (int count = 0; count < n; count++) {
+        for (int count = 0; count < 2*n; count++) {
             int i = rand.nextInt(n);
             int j = rand.nextInt(n);
             Node r = board[i][j];
             ArrayList<Node> tour = new ArrayList<>();
             System.out.printf("(%d, %d) -> ", i, j);
-            resetGraph();
-            found = findTour(r, tour);
+            initGraph();
+            boolean found = findTour(r, tour);
             if (found) {
                 System.out.println("Found!");
                 Thread.sleep(1200);
