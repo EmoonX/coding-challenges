@@ -6,7 +6,7 @@ import java.util.Random;
 class Knight {
 
     /** Graph node representing board square. */
-    static class Node {
+    public static class Node {
         int i, j;
         ArrayList<Edge> edges;
         boolean visited = false;
@@ -52,23 +52,26 @@ class Knight {
         }
     }
 
+    /** Board size (both width and height). */
+    public static int n;
+
+    /** Node 2D matrix representing nxn chess board. */
+    public static Node[][] board;
+
+    /** Whether the tour to search for should be closed or not. */
+    public static boolean closed;
+
+    /** Whether Warnsdorff's heuristic should be used or not. */
+    public static boolean useWarnsdorff;
+
     /** Horizontal deltas for knight moves. */
     static final int[] iMoves = {-2, -2, -1, -1, +1, +1, +2, +2};
 
     /** Vertical deltas for knight moves. */
     static final int[] jMoves = {-1, +1, -2, +2, -2, +2, -1, +1};
 
-    /** Board size (both width and height). */
-    static int n;
-
-    /** Node 2D matrix representing nxn chess board. */
-    static Node[][] board;
-
-    /** Whether the tour to search should be closed or not. */
-    static boolean closed;
-
-    /** Whether Warnsdorff's heuristic should be used or not. */
-    static boolean useWarnsdorff;
+    /** Number of failed attempts during a single `findTour()` DFS. */
+    static int numFails;
 
     /**
      * Builds graph matrix for a <b>nxn</b> board.
@@ -77,7 +80,7 @@ class Knight {
      * corresponding to reachable squares when playing
      * a valid knight move from said position.
      */
-    static void buildGraph(int _n) {
+    public static void buildGraph(int _n) {
         n = _n;
         board = new Node[n][n];
         for (int i = 0; i < n; i++) {
@@ -99,14 +102,16 @@ class Knight {
         }
     }
 
-    /** Resets graph nodes: unvisited and all moves available. */
-    static void resetGraph() {
+    /** Resets graph nodes (unvisited and all
+        moves available) and fail counter. */
+    public static void resetGraph() {
         for (Node[] row: board) {
             for (Node node: row) {
                 node.visited = false;
                 node.numMoves = node.edges.size();
             }
         }
+        numFails = 0;
     }
 
     /**
@@ -117,9 +122,10 @@ class Knight {
      * a valid path from initial call's node to the current one.
      * <p>
      * Search ends successfully if all nodes are added to the list;
-     * otherwise, there are no more valid moves (i.e reachable nodes).
+     * otherwise, either there are no more valid moves (i.e reachable
+     * nodes) or search reached the {@code 1e6} failed attempts threshold.
      */
-    static boolean findTour(Node r, ArrayList<Node> tour) {
+    public static boolean findTour(Node r, ArrayList<Node> tour) {
         r.visited = true;
         tour.add(r);
         if (tour.size() == n*n) {
@@ -145,6 +151,9 @@ class Knight {
             if (found) { 
                 return true;
             }
+            if (++numFails >= 1e6) {
+                return false;
+            }
         }
         cleanUpSearch(r, tour);
         return false;
@@ -165,7 +174,7 @@ class Knight {
      * unvisited squares, {@code "#"} already visited squares,
      * and {@code "E"} where the knight is currently on.
      */
-    static void drawTour(ArrayList<Node> tour)
+    public static void drawTour(ArrayList<Node> tour)
             throws InterruptedException {
 
         System.out.print("\033\143");
@@ -194,6 +203,7 @@ class Knight {
         // waiting a little bit (with `sleep()`) between each move
         // (extra iteration at the end if closed, to insert '!')
         Node last = null;
+        int sleepTime = Math.min(16000 / (n*n), 500);
         for (int k = 0; k <= n*n; k++) {
             if (k == n*n && !closed) {
                 break;
@@ -208,7 +218,7 @@ class Knight {
             int y = node.j + 5;
             char c = (k == 0) ? 'S' : ((k == n*n) ? '!' : 'E');
             moveCursorAndPrint(x, y, c, true);
-            Thread.sleep(20);
+            Thread.sleep(sleepTime);
             last = node;
         }
         moveCursorAndPrint(n + 6, 0, '\n', true);
@@ -228,14 +238,14 @@ class Knight {
 
     public static void main(String[] args)
             throws InterruptedException {
-        int n = 16;
+        int n = 60;
         closed = true;
         useWarnsdorff = true;
         buildGraph(n);
 
         boolean found = false;
         Random rand = new Random();
-        for (int count = 0; count < 100; count++) {
+        for (int count = 0; count < n; count++) {
             int i = rand.nextInt(n);
             int j = rand.nextInt(n);
             Node r = board[i][j];
@@ -252,6 +262,6 @@ class Knight {
                 System.out.println("Not found...");
             }
         }
-        System.out.printf("No available tours for %dx%d... :(\n", n, n);
+        System.out.printf("No tours found for %dx%d... :(\n", n, n);
     }
 }
