@@ -201,32 +201,35 @@ class Knight {
             if (k > 1) {
                 int xLast = last.i + 4;
                 int yLast = last.j + 5;
-                moveCursorAndPrint(xLast, yLast, '#');
+                moveCursorAndPrint(xLast, yLast, '#', false);
             }
             Node node = tour.get(k % (n*n));
             int x = node.i + 4;
             int y = node.j + 5;
             char c = (k == 0) ? 'S' : ((k == n*n) ? '!' : 'E');
-            moveCursorAndPrint(x, y, c);
+            moveCursorAndPrint(x, y, c, true);
             Thread.sleep(20);
             last = node;
         }
-        moveCursorAndPrint(n + 6, 0, '\n');
+        moveCursorAndPrint(n + 6, 0, '\n', true);
     }
 
-    /** Move cursor to position ({@code x}, {@code y})
-        on screen and print char {@code c} on it. */
-    static void moveCursorAndPrint(int x, int y, char c) {
+    /** Move cursor to position ({@code x}, {@code y}) on screen
+        and print char {@code c} on it (w/ optional highlight). */
+    static void moveCursorAndPrint(
+            int x, int y, char c, boolean highlight) {
         final char ESC_CODE = 0x1B;
+        String format = highlight ?
+            "\033[33;1m\033[41m%c\033[0m" : "\033[;1m%c\033[0m";
         System.out.printf("%c[%d;%df", ESC_CODE, x, y);
-        System.out.print(c);
+        System.out.printf(format, c);
         System.out.printf("%c[%d;%df", ESC_CODE, x, y);
     }
 
     public static void main(String[] args)
             throws InterruptedException {
-        int n = 20;
-        closed = false;
+        int n = 16;
+        closed = true;
         useWarnsdorff = true;
         buildGraph(n);
 
