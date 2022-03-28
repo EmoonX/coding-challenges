@@ -21,7 +21,7 @@ class Knight {
 
         /** Either increments or decrements valid move
             counter on reachable nodes. */
-        void updateNumMoves(int delta) {
+        void updateNeighborNumMoves(int delta) {
             for (Edge edge : edges) {
                 Node v = board[edge.iTo][edge.jTo];
                 v.numMoves += delta;
@@ -63,6 +63,9 @@ class Knight {
 
     /** Node 2D matrix representing nxn chess board. */
     static Node[][] board;
+
+    /** Whether the tour to search should be closed or not. */
+    static boolean closed;
 
     /** Whether Warnsdorff's heuristic should be used or not. */
     static boolean useWarnsdorff;
@@ -122,7 +125,14 @@ class Knight {
         if (tour.size() == n*n) {
             return true;
         }
-        r.updateNumMoves(-1);
+        r.updateNeighborNumMoves(-1);
+        if (closed) {
+            Node first = tour.get(0);
+            if (first.numMoves == 0) {
+                cleanUpSearch(r, tour);
+                return false;
+            }
+        }
         if (useWarnsdorff) {
             r.sortEdges();
         }
@@ -136,10 +146,16 @@ class Knight {
                 return true;
             }
         }
+        cleanUpSearch(r, tour);
+        return false;
+    }
+
+    /** Cleanup procedures to be done before
+        {@code return false} in {@code findTour()} */
+    static void cleanUpSearch(Node r, ArrayList<Node> tour) {
         r.visited = false;
         tour.remove(tour.size() - 1);
-        r.updateNumMoves(+1);
-        return false;
+        r.updateNeighborNumMoves(+1);
     }
 
     /**
@@ -153,7 +169,8 @@ class Knight {
             throws InterruptedException {
 
         System.out.print("\033\143");
-        System.out.println("[Knight's tour]\n");
+        System.out.printf("[Knight's tour] (%s)\n\n",
+            closed ? "closed" : "open");
 
         // Draw empty board and borders
         for (int i = -1; i <= n; i++) {
@@ -175,19 +192,23 @@ class Knight {
         }
         // Print knight positions as it moves across the board,
         // waiting a little bit (with `sleep()`) between each move
+        // (extra iteration at the end if closed, to insert '!')
         Node last = null;
-        for (int k = 0; k < n*n; k++) {
+        for (int k = 0; k <= n*n; k++) {
+            if (k == n*n && !closed) {
+                break;
+            }
             if (k > 1) {
                 int xLast = last.i + 4;
                 int yLast = last.j + 5;
                 moveCursorAndPrint(xLast, yLast, '#');
             }
-            Node node = tour.get(k);
+            Node node = tour.get(k % (n*n));
             int x = node.i + 4;
             int y = node.j + 5;
-            char c = (k == 0) ? 'S' : 'E';
+            char c = (k == 0) ? 'S' : ((k == n*n) ? '!' : 'E');
             moveCursorAndPrint(x, y, c);
-            Thread.sleep(10);
+            Thread.sleep(20);
             last = node;
         }
         moveCursorAndPrint(n + 6, 0, '\n');
@@ -205,6 +226,7 @@ class Knight {
     public static void main(String[] args)
             throws InterruptedException {
         int n = 20;
+        closed = false;
         useWarnsdorff = true;
         buildGraph(n);
 
