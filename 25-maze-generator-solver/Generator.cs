@@ -1,28 +1,36 @@
+using static Maze.PrintableChar;
 
 partial class Maze {
     public Maze(int m, int n) {
         this.m = m;
         this.n = n;
-        board = new char[m, n];
+        board = new Node[m, n];
         for (int i = 0; i < m; i++) {
             for (int j = 0; j < n; j++) {
-                board[i, j] = WALL;
+                board[i, j] = new(i, j, Wall);
             }
         }
         DrawBase();
 
-        board[1, 0] = EMPTY;
-        DrawOnCell(1, 0, EMPTY);
+        board[1, 0].type = Start;
+        DrawOnScreen(1, 0, Start);
         var (i0, j0) = (1, 1);
-        BuildGraph(i0, j0);
-        DrawOnCell(m+1, 0, '\n');
+        Generate(i0, j0);
+
+        for (int i = m-2; i > 0; i--) {
+            if (board[i, n-2] == Empty) {
+                board[i, n-2].type = Exit;
+                DrawOnScreen(i, n-2, Exit);
+                break;
+            }
+        }
     }
 
-    void BuildGraph(int i, int j) {
+    void Generate(int i, int j) {
         if (i == 0 || i == m-1 || j == 0 || j == n-1) {
             return;
         }
-        var countEmpty = (int i, int j) => (board[i, j] == EMPTY) ? 1 : 0;
+        var countEmpty = (int i, int j) => (board[i, j] != Wall) ? 1 : 0;
         int count = 0;
         count += countEmpty(i  , j-1) + countEmpty(i,   j+1);
         count += countEmpty(i-1, j  ) + countEmpty(i+1, j  );
@@ -32,7 +40,7 @@ partial class Maze {
         var diagonals = new [] {(-1, -1), (-1, +1), (+1, -1), (+1, +1)};
         foreach (var diag in diagonals) {
             var (iTo, jTo) = (i + diag.Item1, j + diag.Item2);
-            if (board[iTo, jTo] == WALL) {
+            if (board[iTo, jTo] == Wall) {
                 continue;
             }
             count = 0;
@@ -42,17 +50,16 @@ partial class Maze {
                 return;
             }
         }
-        board[i, j] = EMPTY;
-        DrawOnCell(i, j, EMPTY);
-        Thread.Sleep(20);
+        board[i, j].type = Empty;
+        DrawOnScreen(i, j, Empty);
 
         Random rand = new();
         var directions = new [] {(0, -1), (0, +1), (-1, 0), (+1, 0)};
         directions = directions.OrderBy(x => rand.Next()).ToArray();
         foreach (var dir in directions) {
             var (iTo, jTo) = (i + dir.Item1, j + dir.Item2);
-            if (board[iTo, jTo] == WALL) {
-                BuildGraph(iTo, jTo);
+            if (board[iTo, jTo] == Wall) {
+                Generate(iTo, jTo);
             }
         }
     }
@@ -61,8 +68,12 @@ partial class Maze {
 class Generator {
     static void Main() {
 
-        int m = 30;
-        int n = 60;
+        int m = 50;
+        int n = 100;
         Maze maze = new(m, n);
+        
+        maze.BuildGraph();
+        var path = maze.Solve();
+        maze.DrawPath(path);
     }
 }
