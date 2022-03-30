@@ -1,6 +1,8 @@
 using static Maze.PrintableChar;
 
+/// <summary>Main class for maze generation and solving.</summary>
 partial class Maze {
+
     /// <summary>Available chars to be printed on screen.</summary>
     public enum PrintableChar
     {
@@ -47,6 +49,23 @@ partial class Maze {
 
     /// <summary>Board matrix representing maze arrangement.</summary>
     public Node[,] board;
+
+    /// <summary>If cycles/circuits should be allowed in generation.</summary>
+    readonly bool allowCycles;
+
+    /// <summary>
+    /// Initializes maze by creating and drawing a solid <c>mxn</c> board.
+    /// </summary>
+    public Maze(int _m, int _n, bool _allowCycles) {
+        (m, n, allowCycles) = (_m, _n, _allowCycles);
+        board = new Node[m, n];
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                board[i, j] = new(i, j, Wall);
+            }
+        }
+        DrawBase();
+    }
 
     /// <summary>Clears console and draws base maze (no empty cells).</summary>
     public void DrawBase() {

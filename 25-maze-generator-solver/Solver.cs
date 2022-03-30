@@ -5,19 +5,16 @@ partial class Maze {
     /// <summary>Builds graph connecting neighbor empty cells.</summary>
     public void BuildGraph() {
         var directions = new [] {(0, +1), (+1, 0)};
-        for (int i = 0; i < m; i++) {
-            for (int j = 0; j < n; j++) {
-                Node u = board[i, j];
-                if (u == Wall) {
-                    continue;
-                }
-                foreach (var dir in directions) {
-                    var (iTo, jTo) = (i + dir.Item1, j + dir.Item2);
-                    Node v = board[iTo, jTo];
-                    if (v != Wall) {
-                        u.edges.Add(v);
-                        v.edges.Add(u);
-                    }
+        foreach (Node u in board) {
+            if (u == Wall) {
+                continue;
+            }
+            foreach (var dir in directions) {
+                var (iTo, jTo) = (u.i + dir.Item1, u.j + dir.Item2);
+                Node v = board[iTo, jTo];
+                if (v != Wall) {
+                    u.edges.Add(v);
+                    v.edges.Add(u);
                 }
             }
         }
@@ -59,20 +56,20 @@ partial class Maze {
         return path;
     }
 
-    /// <summary>Draws path (from node positions) on screen.</summary>
+    /// <summary>Draws path arrows (from node sequence) on screen.</summary>
     public void DrawPath(Node[] path) {
         for (int k = 0; k < path.Length; k++) {
             Node u = path[k];
             if (u == Empty) {
-                Node v = path[k+1];
                 PrintableChar c;
+                Node v = path[k+1];                
                 var (di, dj) = (v.i - u.i, v.j - u.j);
                 if (di == 0) {
                     c = (dj == -1) ? PathLeft : PathRight;
                 } else {
                     c = (di == -1) ? PathUp : PathDown;
                 }
-                DrawOnScreen(u.i, u.j, c, sleepTime: 50, color: 1);
+                DrawOnScreen(u.i, u.j, c, sleepTime: 5, color: 1);
             }
         }
         DrawOnScreen(m+1, 0, NewLine);
