@@ -69,7 +69,10 @@ partial class Maze {
                 } else {
                     c = (di == -1) ? PathUp : PathDown;
                 }
-                DrawOnScreen(u.i, u.j, c, sleepTime: 5, color: 1);
+                DrawOnScreen(
+                    u.i, u.j, c,
+                    sleepTime: 5000 / path.Length, color: 1
+                );
             }
         }
         DrawOnScreen(m+1, 0, NewLine);

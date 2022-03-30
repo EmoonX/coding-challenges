@@ -52,7 +52,7 @@ partial class Maze {
         }
         // Draw empty space over solid cell
         board[i, j].type = Empty;
-        DrawOnScreen(i, j, Empty, sleepTime: 1);
+        DrawOnScreen(i, j, Empty, sleepTime: 300000 / (m*n));
 
         // Randomly choose a direction and continue recursively towards it
         var directions = new [] {(0, -1), (0, +1), (-1, 0), (+1, 0)};
@@ -74,20 +74,5 @@ partial class Maze {
                 break;
             }
         }
-    }
-}
-
-class Generator {
-    static void Main() {
-
-        int m = 30;
-        int n = 90;
-        bool allowCycles = true;
-        Maze maze = new(m, n, allowCycles);
-        maze.Generate();
-        
-        maze.BuildGraph();
-        var path = maze.Solve();
-        maze.DrawPath(path);
     }
 }

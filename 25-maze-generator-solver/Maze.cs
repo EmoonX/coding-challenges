@@ -19,6 +19,7 @@ partial class Maze {
 
     /// <summary>Maze cell encapsulated as a graph node.</summary>
     public class Node {
+
         /// <summary>Vertical cell offset.</summary>
         public int i;
         /// <summary>Horizontal cell offset.</summary>
@@ -43,12 +44,12 @@ partial class Maze {
     }
 
     /// <summary>Maze height.</summary>
-    public int m;
+    readonly int m;
     /// <summary>Maze width.</summary>
-    public int n;
+    readonly int n;
 
     /// <summary>Board matrix representing maze arrangement.</summary>
-    public Node[,] board;
+    readonly Node[,] board;
 
     /// <summary>If cycles/circuits should be allowed in generation.</summary>
     readonly bool allowCycles;
@@ -56,8 +57,8 @@ partial class Maze {
     /// <summary>
     /// Initializes maze by creating and drawing a solid <c>mxn</c> board.
     /// </summary>
-    public Maze(int _m, int _n, bool _allowCycles) {
-        (m, n, allowCycles) = (_m, _n, _allowCycles);
+    public Maze(int m, int n, bool allowCycles) {
+        (this.m, this.n, this.allowCycles) = (m, n, allowCycles);
         board = new Node[m, n];
         for (int i = 0; i < m; i++) {
             for (int j = 0; j < n; j++) {
@@ -67,8 +68,10 @@ partial class Maze {
         DrawBase();
     }
 
-    /// <summary>Clears console and draws base maze (no empty cells).</summary>
-    public void DrawBase() {
+    /// <summary>
+    /// Clears console and draws base maze (no empty cells).
+    /// </summary>
+    void DrawBase() {
         Console.Clear();
         for (int i = 0; i < m; i++) {
             for (int j = 0; j < n; j++) {
@@ -81,7 +84,7 @@ partial class Maze {
     /// <summary>Draws char on screen position <c>(i, j)</c>.</summary>
     /// <param name="sleepTime">Miliseconds to wait after drawing.</param>
     /// <param name="color">ANSI color code index (0 for none).</param>
-    public static void DrawOnScreen(
+    static void DrawOnScreen(
         int i, int j, PrintableChar c,
         int sleepTime = 0, int color = 0
     ) {
@@ -96,5 +99,16 @@ partial class Maze {
         Console.Write(s);
         Console.Write("{0}[{1};{2}H", EscCode, i+1, j+1);
         Thread.Sleep(sleepTime);
+    }
+
+    public static void Main() {
+        // Build and randomly generate maze
+        Maze maze = new(m: 50, n: 200, allowCycles: false);
+        maze.Generate();
+        
+        // Solve it by finding shortest path; then draw on screen
+        maze.BuildGraph();
+        var path = maze.Solve();
+        maze.DrawPath(path);
     }
 }
