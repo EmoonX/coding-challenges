@@ -13,14 +13,14 @@ partial class Maze {
         DrawBase();
 
         board[1, 0].type = Start;
-        DrawOnScreen(1, 0, Start);
+        DrawOnScreen(1, 0, Start, color: 3);
         var (i0, j0) = (1, 1);
         Generate(i0, j0);
 
         for (int i = m-2; i > 0; i--) {
             if (board[i, n-2] == Empty) {
                 board[i, n-2].type = Exit;
-                DrawOnScreen(i, n-2, Exit);
+                DrawOnScreen(i, n-2, Exit, color: 3);
                 break;
             }
         }
@@ -51,7 +51,7 @@ partial class Maze {
             }
         }
         board[i, j].type = Empty;
-        DrawOnScreen(i, j, Empty);
+        DrawOnScreen(i, j, Empty, sleepTime: 20);
 
         Random rand = new();
         var directions = new [] {(0, -1), (0, +1), (-1, 0), (+1, 0)};
@@ -68,8 +68,8 @@ partial class Maze {
 class Generator {
     static void Main() {
 
-        int m = 50;
-        int n = 100;
+        int m = 30;
+        int n = 90;
         Maze maze = new(m, n);
         
         maze.BuildGraph();

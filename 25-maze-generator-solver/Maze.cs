@@ -4,12 +4,15 @@ partial class Maze {
     /// <summary>Available chars to be printed on screen.</summary>
     public enum PrintableChar
     {
-        Empty   = ' ',
-        Wall    = '█',
-        Start   = 'S',
-        Exit    = 'E',
-        Path    = '@',
-        NewLine = '\n'
+        Empty     = ' ',
+        Wall      = '█',
+        Start     = 'S',
+        Exit      = 'E',
+        PathUp    = '↑',
+        PathDown  = '↓',
+        PathLeft  = '←',
+        PathRight = '→',
+        NewLine   = '\n'
     }
 
     /// <summary>Maze cell encapsulated as a graph node.</summary>
@@ -57,11 +60,22 @@ partial class Maze {
     }
 
     /// <summary>Draws char on screen position <c>(i, j)</c>.</summary>
-    public static void DrawOnScreen(int i, int j, PrintableChar c) {
+    /// <param name="sleepTime">Miliseconds to wait after drawing.</param>
+    /// <param name="color">ANSI color code index (0 for none).</param>
+    public static void DrawOnScreen(
+        int i, int j, PrintableChar c,
+        int sleepTime = 0, int color = 0
+    ) {
         const char EscCode = (char) 0x1B;
+        string format = "{0}";
+        if (color != 0) {
+            format = string.Format("\x1b[33;1m\x1b[3{0}m{1}\x1b[0m",
+                color, "{0}");
+        }
+        string s = string.Format(format, ((char) c).ToString());
         Console.Write("{0}[{1};{2}H", EscCode, i+1, j+1);
-        Console.Write((char) c);
+        Console.Write(s);
         Console.Write("{0}[{1};{2}H", EscCode, i+1, j+1);
-        Thread.Sleep(10);
+        Thread.Sleep(sleepTime);
     }
 }

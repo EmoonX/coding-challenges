@@ -61,9 +61,18 @@ partial class Maze {
 
     /// <summary>Draws path (from node positions) on screen.</summary>
     public void DrawPath(Node[] path) {
-        foreach (Node v in path) {
-            if (v == Empty) {
-                DrawOnScreen(v.i, v.j, PrintableChar.Path);
+        for (int k = 0; k < path.Length; k++) {
+            Node u = path[k];
+            if (u == Empty) {
+                Node v = path[k+1];
+                PrintableChar c;
+                var (di, dj) = (v.i - u.i, v.j - u.j);
+                if (di == 0) {
+                    c = (dj == -1) ? PathLeft : PathRight;
+                } else {
+                    c = (di == -1) ? PathUp : PathDown;
+                }
+                DrawOnScreen(u.i, u.j, c, sleepTime: 50, color: 1);
             }
         }
         DrawOnScreen(m+1, 0, NewLine);
