@@ -9,8 +9,8 @@ partial class Maze {
             if (u == Wall) {
                 continue;
             }
-            foreach (var dir in directions) {
-                var (iTo, jTo) = (u.i + dir.Item1, u.j + dir.Item2);
+            foreach (var (iDelta, jDelta) in directions) {
+                var (iTo, jTo) = (u.i + iDelta, u.j + jDelta);
                 Node v = board[iTo, jTo];
                 if (v != Wall) {
                     u.edges.Add(v);
@@ -27,14 +27,14 @@ partial class Maze {
     public Node[] Solve() {
         Node r = board[1, 0];
         r.dist = 0;
-        PriorityQueue<Node, int> pq = new(new [] {(r, 0)});
+        var pQueue = new PriorityQueue<Node, int>(new [] {(r, 0)});
         Node last = r;
-        while (pq.Count > 0) {
-            Node u = pq.Dequeue();
+        while (pQueue.Count > 0) {
+            Node u = pQueue.Dequeue();
             foreach (Node v in u.edges) {
                 if (v.dist == -1) {
                     v.dist = u.dist + 1;
-                    pq.Enqueue(v, v.dist);
+                    pQueue.Enqueue(v, v.dist);
                 }
             }
             if (u == Exit) {
@@ -61,14 +61,12 @@ partial class Maze {
         for (int k = 0; k < path.Length; k++) {
             Node u = path[k];
             if (u == Empty) {
-                PrintableChar c;
-                Node v = path[k+1];                
+                Node v = path[k+1];
                 var (di, dj) = (v.i - u.i, v.j - u.j);
-                if (di == 0) {
-                    c = (dj == -1) ? PathLeft : PathRight;
-                } else {
-                    c = (di == -1) ? PathUp : PathDown;
-                }
+                PrintableChar c =
+                    (di == 0) ?
+                        ((dj == -1) ? PathLeft : PathRight) :
+                        ((di == -1) ? PathUp   : PathDown);
                 DrawOnScreen(
                     u.i, u.j, c,
                     sleepTime: 5000 / path.Length, color: 1

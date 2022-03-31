@@ -88,22 +88,22 @@ partial class Maze {
         int i, int j, PrintableChar c,
         int sleepTime = 0, int color = 0
     ) {
-        const char EscCode = (char) 0x1B;
         string format = "{0}";
         if (color != 0) {
-            format = string.Format("\x1b[33;1m\x1b[3{0}m{1}\x1b[0m",
-                color, "{0}");
+            format = String.Format(
+                "\x1b[33;1m\x1b[3{0}m{1}\x1b[0m", color, "{0}"
+            );
         }
-        string s = string.Format(format, ((char) c).ToString());
-        Console.Write("{0}[{1};{2}H", EscCode, i+1, j+1);
+        string s = String.Format(format, ((char) c).ToString());
+        Console.Write("\x1b[{0};{1}H", i+1, j+1);
         Console.Write(s);
-        Console.Write("{0}[{1};{2}H", EscCode, i+1, j+1);
+        Console.Write("\x1b[{0};{1}H", i+1, j+1);
         Thread.Sleep(sleepTime);
     }
 
     public static void Main() {
         // Build and randomly generate maze
-        Maze maze = new(m: 50, n: 200, allowCycles: false);
+        Maze maze = new(m: 30, n: 80, allowCycles: true);
         maze.Generate();
         
         // Solve it by finding shortest path; then draw on screen

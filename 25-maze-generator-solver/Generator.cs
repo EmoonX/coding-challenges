@@ -24,7 +24,7 @@ partial class Maze {
         // Avoid open spaces and (possibly) cycles/circuits
         Random rand = new();
         var countEmpty = (int i, int j)
-                => (board[i, j] != Wall) ? 1 : 0;
+            => (board[i, j] != Wall) ? 1 : 0;
         int countX = countEmpty(i  , j-1) + countEmpty(i,   j+1);
         int countY = countEmpty(i-1, j  ) + countEmpty(i+1, j  );
         if (countX + countY >= 2) {
@@ -38,8 +38,8 @@ partial class Maze {
         }
         // Avoid empty cells touching each other solely through diagonals
         var diagonals = new [] {(-1, -1), (-1, +1), (+1, -1), (+1, +1)};
-        foreach (var diag in diagonals) {
-            var (iTo, jTo) = (i + diag.Item1, j + diag.Item2);
+        foreach (var (iDelta, jDelta) in diagonals) {
+            var (iTo, jTo) = (i + iDelta, j + jDelta);
             if (board[iTo, jTo] == Wall) {
                 continue;
             }
@@ -52,13 +52,13 @@ partial class Maze {
         }
         // Draw empty space over solid cell
         board[i, j].type = Empty;
-        DrawOnScreen(i, j, Empty, sleepTime: 300000 / (m*n));
+        DrawOnScreen(i, j, Empty, sleepTime: 30000 / (m*n));
 
         // Randomly choose a direction and continue recursively towards it
         var directions = new [] {(0, -1), (0, +1), (-1, 0), (+1, 0)};
         directions = directions.OrderBy(x => rand.Next()).ToArray();
-        foreach (var dir in directions) {
-            var (iTo, jTo) = (i + dir.Item1, j + dir.Item2);
+        foreach (var (iDelta, jDelta) in directions) {
+            var (iTo, jTo) = (i + iDelta, j + jDelta);
             if (board[iTo, jTo] == Wall) {
                 Build(iTo, jTo);
             }
