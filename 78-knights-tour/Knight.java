@@ -258,7 +258,7 @@ class Knight {
         buildGraph();
 
         // Search for tours in random starting (i, j) positions.
-        // Abort if not tours are found after several tries.
+        // Abort if no tours are found after several tries.
         Random rand = new Random();
         for (int count = 0; count < 2*n; count++) {
             int i = rand.nextInt(n);
