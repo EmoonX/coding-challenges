@@ -243,9 +243,11 @@ class Knight {
         // Parse args and build graph
         if (args.length == 0) {
             System.out.println(
-                " Usage: java Knight N [useWarnsdorff] [closed]");
+                " Usage: java Knight N " +
+                "[useWarnsdorff] [closed] [sleepTime]"
+            );
             System.out.println("    Ex: java Knight 8");
-            System.out.println("    Ex: java Knight 12 true true");
+            System.out.println("    Ex: java Knight 12 true true 100");
             return;
         }
         n = Integer.parseInt(args[0]);
