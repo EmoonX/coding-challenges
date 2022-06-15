@@ -1,44 +1,39 @@
-Celsius celsius = new(-40);
-Fahrenheit fahrenheit = celsius.ToFahrenheit();
-Kelvin kelvin = celsius.ToKelvin();
-Console.WriteLine(celsius);
-Console.WriteLine(fahrenheit);
-Console.WriteLine(kelvin);
+Scale celsius = new("°C", 1, 0);
+Scale fahrenheit = new("°F", 1.8, 32);
+Scale kelvin = new("K", 1, 273.15);
+
+Temperature tempCelsius = new(celsius, -40);
+Temperature tempFahrenheit = tempCelsius.ToScale(fahrenheit);
+Temperature tempKelvin = tempCelsius.ToScale(kelvin);
+
+Console.WriteLine(tempCelsius);
+Console.WriteLine(tempFahrenheit);
+Console.WriteLine(tempKelvin);
+
+class Scale {
+    public readonly string symbol;
+
+    public readonly double a;
+
+    public readonly double b;
+
+    public Scale(string symbol, double a, double b)
+        => (this.symbol, this.a, this.b) = (symbol, a, b);
+}
 
 class Temperature {
-    protected double value;
+    readonly Scale scale;
 
-    protected Temperature(double value)
-        => this.value = value;
-}
+    readonly double value;
 
-class Celsius : Temperature {
-    public Celsius(double value) : base(value) {}
+    public Temperature(Scale scale, double value)
+        => (this.scale, this.value) = (scale, value);
 
-    public Fahrenheit ToFahrenheit() {
-        double value = (this.value * 1.8) + 32;
-        return new(value);
-    }
-
-    public Kelvin ToKelvin() {
-        double value = this.value + 273.15;
-        return new(value);
+    public Temperature ToScale(Scale other) {
+        double value = (other.a * this.value) + other.b;
+        return new(other, value);
     }
 
     public override string ToString()
-        => String.Format("{0:.0} °C", value);
-}
-
-class Fahrenheit : Temperature {
-    public Fahrenheit(double value) : base(value) {}
-
-    public override string ToString()
-        => String.Format("{0:.0} °F", value);
-}
-
-class Kelvin : Temperature {
-    public Kelvin(double value) : base(value) {}
-
-    public override string ToString()
-        => String.Format("{0:.0} K", value);
+        => String.Format("{0:0.0} {1}", value, scale.symbol);
 }
