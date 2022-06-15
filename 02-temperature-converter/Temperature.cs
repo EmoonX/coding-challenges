@@ -1,14 +1,17 @@
 Scale celsius = new("°C", 1, 0);
 Scale fahrenheit = new("°F", 1.8, 32);
 Scale kelvin = new("K", 1, 273.15);
+Scale rankine = new("°R", 1.8, 491.67);
 
 Temperature tempKelvin = new(kelvin, 0);
 Temperature tempCelsius = tempKelvin.ToScale(celsius);
 Temperature tempFahrenheit = tempKelvin.ToScale(fahrenheit);
+Temperature tempRankine = tempKelvin.ToScale(rankine);
 
 Console.WriteLine(tempCelsius);
 Console.WriteLine(tempFahrenheit);
 Console.WriteLine(tempKelvin);
+Console.WriteLine(tempRankine);
 
 /// <summary>A temperature scale.</summary>
 class Scale {
