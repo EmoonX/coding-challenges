@@ -3,7 +3,12 @@
 #include <stdlib.h>
 #include <string.h>
 
-/** Shows program usage. */
+/** All 36 available digits. */
+const char *digits = "0123456789abcdefghijklmnopqrstuvwxyz";
+
+/**
+ * Shows program usage.
+ */
 void show_usage(char *program_name) {
     printf("Usage: %s <number> <base_from> <base_to>\n\n", program_name);
     puts("• number\n    An integer or floating point number.");
@@ -11,18 +16,21 @@ void show_usage(char *program_name) {
     puts("");
 }
 
-/** Converts string from given base/radix to another one. */
+/**
+ * Converts string from given base/radix to equivalent one
+ * in another base.
+ */
 void convert(char *x, char *y, int base_from, int base_to) {
     long long integer = 0;
     for (int i = 0; x[i] != '\0'; i++) {
-        int k = x[i] - '0';
+        int k = strchr(digits, x[i]) - digits;
         integer = (integer * base_from) + k;
     }
     int i;
     char aux[128];
     for (i = 0; integer > 0; i++) {
         int k = integer % base_to;
-        char c = '0' + k;
+        char c = digits[k];
         aux[i] = c;
         integer /= base_to;
     }
@@ -35,6 +43,7 @@ void convert(char *x, char *y, int base_from, int base_to) {
 }
 
 int main(int argc, char **argv) {
+    // Get arguments
     if (argc != 4) {
         show_usage(argv[0]);
         return EXIT_FAILURE;
@@ -43,6 +52,7 @@ int main(int argc, char **argv) {
     int base_from = atoi(argv[2]);
     int base_to = atoi(argv[3]);
 
+    // Convert number and print result
     char y[128];
     convert(x, y, base_from, base_to);
     printf("%s (%d) = %s (%d)\n", x, base_from, y, base_to);
