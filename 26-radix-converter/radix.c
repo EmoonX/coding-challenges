@@ -7,7 +7,7 @@
 const char *digits = "0123456789abcdefghijklmnopqrstuvwxyz";
 
 /**
- * Shows program usage.
+ * Show program usage.
  */
 void show_usage(char *program_name) {
     printf("Usage: %s <number> <base_from> <base_to>\n\n", program_name);
@@ -17,15 +17,23 @@ void show_usage(char *program_name) {
 }
 
 /**
- * Converts string from given base/radix to equivalent one
+ * Convert string from given base/radix to equivalent one
  * in another base.
  */
 void convert(char *x, char *y, int base_from, int base_to) {
     long long integer = 0;
+    if (x[0] == '-') {
+        // Easy hack for negative numbers
+        y[0] = '-';
+        x++;
+        y++;
+    }
+    // Get base 10 number from integer part
     for (int i = 0; x[i] != '\0'; i++) {
         int k = strchr(digits, x[i]) - digits;
         integer = (integer * base_from) + k;
     }
+    // Build string in target base
     int i;
     char aux[128];
     for (i = 0; integer > 0; i++) {
@@ -34,6 +42,7 @@ void convert(char *x, char *y, int base_from, int base_to) {
         aux[i] = c;
         integer /= base_to;
     }
+    // Reverse string for final result
     int n = i;
     y[i] = '\0';
     for (i--; i >= 0; i--) {
