@@ -29,6 +29,11 @@ void convert(const char input[], char output[], int base_from, int base_to) {
         x++;
         y++;
     }
+    if (strcmp(x, "0") == 0) {
+        // Zero's corner case
+        strcpy(y, "0");
+        return;
+    }
     // Get base 10 number from input
     long long decimal = 0;
     for (int i = 0; x[i] != '\0'; i++) {
