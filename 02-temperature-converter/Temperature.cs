@@ -10,32 +10,44 @@ Console.WriteLine(tempCelsius);
 Console.WriteLine(tempFahrenheit);
 Console.WriteLine(tempKelvin);
 
-/// <summary>A.</summary>
+/// <summary>A temperature scale.</summary>
 class Scale {
+
+    /// <summary>Symbol to be printed as measurement unit.</summary>
     public readonly string symbol;
 
+    /// <summary>Angular coefficient.</summary>
     public readonly double a;
 
+    /// <summary>Linear coefficient.</summary>
     public readonly double b;
 
+    /// <summary>Initializes scale.</summary>
     public Scale(string symbol, double a, double b)
         => (this.symbol, this.a, this.b) = (symbol, a, b);
 }
 
+/// <summary>Represents a temperature in given scale and degrees.</summary>
 class Temperature {
+
+    /// <summary>Scale temperature is in.</summary>
     readonly Scale scale;
 
-    readonly double value;
+    /// <summary>How many degrees.</summary>
+    readonly double degrees;
 
-    public Temperature(Scale scale, double value)
-        => (this.scale, this.value) = (scale, value);
+    /// <summary>Initializes temperature.</summary>
+    public Temperature(Scale scale, double degrees)
+        => (this.scale, this.degrees) = (scale, degrees);
 
+    /// <summary>Converts temperature to target scale.</summary>
     public Temperature ToScale(Scale target) {
-        double tempCelsius = (value - scale.b) / scale.a;
+        double tempCelsius = (degrees - scale.b) / scale.a;
         double tempTarget = (tempCelsius * target.a) + target.b;
         return new(target, tempTarget);
     }
 
+    /// <summary>String representation with unit symbol.</summary>
     public override string ToString()
-        => String.Format("{0:0.0} {1}", value, scale.symbol);
+        => String.Format("{0:0.0} {1}", degrees, scale.symbol);
 }
