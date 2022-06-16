@@ -1,6 +1,8 @@
+# VSCode
 .vscode
 .VSCodeCounter
 
+# Java
 *.out
 *.jar
 *.class
@@ -9,3 +11,6 @@
 bin
 obj
 *.csproj
+
+# Node.js
+node_modules
