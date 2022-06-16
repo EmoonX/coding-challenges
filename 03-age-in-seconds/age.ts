@@ -9,6 +9,11 @@ function isLeapYear(year: number): boolean {
   return false;
 }
 
-const year: number = parseInt(process.argv[2]);
-console.log(year);
-console.log(isLeapYear(year));
+const birthday: string = process.argv[2];
+const dateBirth = new Date(birthday);
+console.log(dateBirth);
+
+const dateNow = new Date();
+console.log(dateNow);
+
+
