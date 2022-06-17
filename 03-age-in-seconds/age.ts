@@ -1,3 +1,11 @@
+import { endianness } from "os";
+
+/** How many seconds in a day. */
+const SECONDS_PER_DAY = 60 * 60 * 24;
+
+/** Default number of days in each month. */
+const daysInMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+
 /** Checks if given year is a leap year. */
 function isLeapYear(year: number): boolean {
   if (year % 4 == 0) {
@@ -9,11 +17,69 @@ function isLeapYear(year: number): boolean {
   return false;
 }
 
+/** Get total amount of days for the month of given date. */
+function getTotalDaysInMonth(date: Date): number {
+  const monthIndex = date.getMonth();
+  if (date.getMonth() == 1 && isLeapYear(date.getFullYear())) {
+    return 29;
+  }
+  return daysInMonth[monthIndex];
+}
+
+function calculateInYear(start: Date, end: Date): number {
+  let seconds = 0;
+  seconds += 60 * 60 * (24 - end.getHours());
+  seconds += 60 * (60 - end.getMinutes());
+  seconds += 60 - end.getSeconds();
+  if (start.getMonth() == end.getMonth()) {
+    const fullDays = end.getDay() - start.getDay() - 1;
+    seconds += fullDays * SECONDS_PER_DAY;
+  } else {
+    const fullStartDays = getTotalDaysInMonth(start) - start.getDay();
+    seconds += fullStartDays * SECONDS_PER_DAY;
+    const date = start;
+    for (let month = start.getMonth() + 1; month < end.getMonth(); month++) {
+      date.setMonth(month);
+      const totalDays = getTotalDaysInMonth(date);
+      seconds += totalDays * SECONDS_PER_DAY;
+    }
+    const fullEndDays = end.getDay() - 1;
+    seconds += fullEndDays * SECONDS_PER_DAY;
+  }
+  seconds += 60 * 60 * end.getHours();
+  seconds += 60 * end.getMinutes();
+  seconds += end.getSeconds();
+  return seconds;
+}
+
+function calculate(birth: Date, now: Date): number {
+  if (birth.getFullYear() === now.getFullYear()) {
+    return calculateInYear(birth, now);
+  }
+  let seconds = calculateInYear(
+    birth, new Date(`{birth.getFullYear()}-12-31 23:59:59`)
+  ) + 1;
+  console.log(seconds);
+  for (let year = birth.getFullYear() + 1; year < now.getFullYear(); year++) {
+    const daysInYear = isLeapYear(year) ? 366 : 365;
+    seconds += daysInYear * SECONDS_PER_DAY;
+    console.log(daysInYear * SECONDS_PER_DAY);
+  }
+  const aux = calculateInYear(
+    new Date(`{now.getFullYear()}-01-01 00:00:00`), now
+  );
+  console.log(aux);
+  seconds += aux;
+  return seconds;
+}
+
 const birthday: string = process.argv[2];
 const dateBirth = new Date(birthday);
+dateBirth.setHours(12, 0, 0);
 console.log(dateBirth);
 
 const dateNow = new Date();
 console.log(dateNow);
 
-
+const totalSeconds = calculate(dateBirth, dateNow);
+console.log(totalSeconds);
