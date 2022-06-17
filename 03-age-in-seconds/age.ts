@@ -71,10 +71,22 @@ function calculate(birth: Date, now: Date): number {
 }
 
 // Get birthday date and current date
-const birthday: string = `${process.argv[2]} 12:00:00`;
-const dateBirth = new Date(birthday);
+const birthday: string = process.argv[2];
+console.log(`> You were born in ${birthday}.`);
+const dateBirth = new Date(`${birthday} 12:00:00`);
 const dateNow = new Date();
 
 // Calculate result and print it
-const totalSeconds = calculate(dateBirth, dateNow);
-console.log(totalSeconds);
+console.log('> Your age is approximately:');
+const seconds = calculate(dateBirth, dateNow);
+const minutes = seconds / 60;
+const hours = minutes / 60;
+const days = hours / 24;
+const months = days / 30;
+const years = days / 365;
+console.log(`  • ${Math.round(years)} years...`);
+console.log(`  • ${Math.round(months)} months...`);
+console.log(`  • ${Math.round(days)} days...`);
+console.log(`  • ${Math.round(hours)} hours...`);
+console.log(`  • ${Math.round(minutes)} minutes...`);
+console.log(`  • or ${seconds} seconds!\n`);
