@@ -67,8 +67,21 @@ public:
 class Merge : public Sorting {
 public:
     /**
-     * Recursively split list into segments of half the calling size,
+     * Recursively splits list into segments of half the calling size,
      * merging both resulting segments into a single ordered one.
+     */
+    void sort();
+
+private:
+    void inner_sort(int l, int r);
+};
+
+/** Quicksort, O(n * log(n)). */
+class Quick : public Sorting {
+public:
+    /**
+     * Randomly chooses a pivot, which is moved to the correct position
+     * and then algorithm recursively applied to the split segments.
      */
     void sort();
 
