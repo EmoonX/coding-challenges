@@ -7,7 +7,7 @@ using std::cerr, std::string;
 
 void show_usage_and_exit() {
     static string algorithms[] = {
-        "bubble", "selection", "insertion"
+        "bubble", "selection", "insertion", "merge"
     };
     fputs("Usage: ./a.out <size> <algorithm>\n", stderr);
     fputs("• size\n    Size of the list to be sorted.\n\n", stderr);

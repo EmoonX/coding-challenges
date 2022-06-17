@@ -11,9 +11,9 @@ using std::string, std::vector;
 class Sorting {
 public:
     /**
-      * Initializes list and returns pointer to corresponding
-      * algorithm sorting subclass.
-      */
+     * Initializes list and returns pointer to corresponding
+     * algorithm sorting subclass.
+     */
     static Sorting * init(
         const vector<int> &list, const string &algorithm
     );
@@ -61,4 +61,17 @@ public:
      * until it's moved to the right position in the ordered prefix.
      */
     void sort();
+};
+
+/** Merge sort, O(n * log(n)). */
+class Merge : public Sorting {
+public:
+    /**
+     * Recursively split list into segments of half the calling size,
+     * merging both resulting segments into a single ordered one.
+     */
+    void sort();
+
+private:
+    void inner_sort(int l, int r);
 };
