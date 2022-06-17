@@ -28,7 +28,7 @@ void draw_list() {
         }
         cout << endl;
     }
-    this_thread::sleep_for(chrono::milliseconds(20));
+    this_thread::sleep_for(chrono::milliseconds(15));
 }
 
 /**
@@ -79,11 +79,29 @@ void selection_sort() {
     }
 }
 
+/**
+ * Insertion sort, O(n²).
+ *
+ * Swaps first unordered element with previously ordered ones
+ * until it's moved to the right position in the ordered prefix.
+ */
+void insertion_sort() {
+    for (int i = 1; i < n; i++) {
+        for (int j = i; j >= 0; j--) {
+            bool change = check_and_swap(list[j-1], list[j]);
+            if (change) {
+                draw_list();
+            } else break;
+        }
+    }
+}
+
 int main(int argc, char **argv) {
-    // Map of availabe algorithms
+    // Map of available algorithms
     map<string, void (*)()> algorithms = {
         {"bubble", bubble_sort},
         {"selection", selection_sort},
+        {"insertion", insertion_sort},
     };
     // Receive arguments
     if (argc != 3 or (not algorithms.count(argv[2]))) {
