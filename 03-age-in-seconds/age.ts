@@ -1,5 +1,3 @@
-import { endianness } from "os";
-
 /** How many seconds in a day. */
 const SECONDS_PER_DAY = 60 * 60 * 24;
 
@@ -17,7 +15,7 @@ function isLeapYear(year: number): boolean {
   return false;
 }
 
-/** Get total amount of days for the month of given date. */
+/** Gets total amount of days for the month of given date. */
 function getTotalDaysInMonth(date: Date): number {
   const monthIndex = date.getMonth();
   if (date.getMonth() == 1 && isLeapYear(date.getFullYear())) {
@@ -26,25 +24,26 @@ function getTotalDaysInMonth(date: Date): number {
   return daysInMonth[monthIndex];
 }
 
+/** Calculates total number of seconds between given dates within a year. */
 function calculateInYear(start: Date, end: Date): number {
   let seconds = 0;
-  seconds += 60 * 60 * (24 - end.getHours());
-  seconds += 60 * (60 - end.getMinutes());
-  seconds += 60 - end.getSeconds();
+  seconds += 60 * 60 * (23 - start.getHours());
+  seconds += 60 * (59 - start.getMinutes());
+  seconds += 60 - start.getSeconds();
   if (start.getMonth() == end.getMonth()) {
-    const fullDays = end.getDay() - start.getDay() - 1;
+    const fullDays = end.getDate() - start.getDate() - 1;
     seconds += fullDays * SECONDS_PER_DAY;
   } else {
-    const fullStartDays = getTotalDaysInMonth(start) - start.getDay();
-    seconds += fullStartDays * SECONDS_PER_DAY;
+    const startMonthFullDays = getTotalDaysInMonth(start) - start.getDate();
+    seconds += startMonthFullDays * SECONDS_PER_DAY;
     const date = start;
     for (let month = start.getMonth() + 1; month < end.getMonth(); month++) {
       date.setMonth(month);
       const totalDays = getTotalDaysInMonth(date);
       seconds += totalDays * SECONDS_PER_DAY;
     }
-    const fullEndDays = end.getDay() - 1;
-    seconds += fullEndDays * SECONDS_PER_DAY;
+    const endMonthFullDays = end.getDate() - 1;
+    seconds += endMonthFullDays * SECONDS_PER_DAY;
   }
   seconds += 60 * 60 * end.getHours();
   seconds += 60 * end.getMinutes();
@@ -52,34 +51,30 @@ function calculateInYear(start: Date, end: Date): number {
   return seconds;
 }
 
+/** Calculates total number of seconds between two dates. */
 function calculate(birth: Date, now: Date): number {
   if (birth.getFullYear() === now.getFullYear()) {
     return calculateInYear(birth, now);
   }
   let seconds = calculateInYear(
-    birth, new Date(`{birth.getFullYear()}-12-31 23:59:59`)
+    birth, new Date(`${birth.getFullYear()}-12-31 23:59:59`)
   ) + 1;
-  console.log(seconds);
   for (let year = birth.getFullYear() + 1; year < now.getFullYear(); year++) {
     const daysInYear = isLeapYear(year) ? 366 : 365;
     seconds += daysInYear * SECONDS_PER_DAY;
-    console.log(daysInYear * SECONDS_PER_DAY);
   }
   const aux = calculateInYear(
-    new Date(`{now.getFullYear()}-01-01 00:00:00`), now
+    new Date(`${now.getFullYear()}-01-01 00:00:00`), now
   );
-  console.log(aux);
   seconds += aux;
   return seconds;
 }
 
-const birthday: string = process.argv[2];
+// Get birthday date and current date
+const birthday: string = `${process.argv[2]} 12:00:00`;
 const dateBirth = new Date(birthday);
-dateBirth.setHours(12, 0, 0);
-console.log(dateBirth);
-
 const dateNow = new Date();
-console.log(dateNow);
 
+// Calculate result and print it
 const totalSeconds = calculate(dateBirth, dateNow);
 console.log(totalSeconds);
