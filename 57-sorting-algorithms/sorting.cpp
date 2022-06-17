@@ -2,6 +2,7 @@
 #include <chrono>
 #include <cstdlib>
 #include <iostream>
+#include <map>
 #include <random>
 #include <thread>
 #include <vector>
@@ -58,14 +59,26 @@ void selection_sort() {
 }
 
 int main(int argc, char **argv) {
+    // Receive arguments
     n = atoi(argv[1]);
+    string algorithm = argv[2];
 
+    // Build list of consecutive integers
     for (int k = 1; k <= n; k++) {
         list.push_back(k);
     }
+    // Shuffle list using random seed
     random_device rd;
     shuffle(list.begin(), list.end(), default_random_engine(rd()));
     draw_list();
-    // bubble_sort();
-    selection_sort();
+
+    // Get function pointer from string and call it
+    map<string, void (*)()> algorithms = {
+        {"bubble", bubble_sort},
+        {"selection", selection_sort},
+    };
+    if (algorithms.count(algorithm)) {
+        auto sort_function = algorithms[algorithm];
+        sort_function();
+    }
 }
