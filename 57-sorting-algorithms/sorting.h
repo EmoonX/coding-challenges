@@ -88,3 +88,13 @@ public:
 private:
     void inner_sort(int l, int r);
 };
+
+/** Heapsort, O(n * log(n)). */
+class Heap : public Sorting {
+public:
+    /**
+     * Builds a max heap from list values, then sorted array by
+     * moving top elements to the end whilst maintaining heap integrity.
+     */
+    void sort();
+};

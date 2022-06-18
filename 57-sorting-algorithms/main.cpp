@@ -32,4 +32,5 @@ int main(int argc, char **argv) {
     sorting->draw_list();
     sorting->sort();
     delete sorting;
+    puts("");
 }

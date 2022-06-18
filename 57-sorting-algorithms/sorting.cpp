@@ -18,6 +18,8 @@ Sorting * Sorting::init(const vector<int> &list, const string &algorithm) {
         sorting = new Merge;
     } else if (algorithm == "quick") {
         sorting = new Quick;
+    } else if (algorithm == "heap") {
+        sorting = new Heap;
     } else {
         show_usage_and_exit();
     }
@@ -36,5 +38,5 @@ void Sorting::draw_list() const {
         }
         cout << endl;
     }
-    this_thread::sleep_for(chrono::milliseconds(40));
+    this_thread::sleep_for(chrono::milliseconds(20));
 }
