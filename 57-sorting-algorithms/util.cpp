@@ -1,9 +1,10 @@
 #include <iostream>
 #include <string>
+#include <utility>
 
 #include "util.h"
 
-using std::cerr, std::string;
+using std::cerr, std::string, std::swap;
 
 void show_usage_and_exit() {
     static string algorithms[] = {
@@ -21,9 +22,7 @@ void show_usage_and_exit() {
 
 bool check_and_swap(int &x, int &y) {
     if (x > y) {
-        int aux = x;
-        x = y;
-        y = aux;
+        swap(x, y);
         return true;
     }
     return false;
