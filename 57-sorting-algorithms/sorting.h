@@ -23,8 +23,6 @@ public:
 
     virtual void sort() {}
 
-    virtual ~Sorting() {}
-
 protected:
     /** How many values in list. */
     int n;
