@@ -1,7 +1,7 @@
 #include <algorithm>
 #include <cstdlib>
 #include <cstdio>
-#include <iostream>
+#include <memory>
 #include <random>
 #include <vector>
 
@@ -28,9 +28,8 @@ int main(int argc, char **argv) {
     shuffle(list.begin(), list.end(), default_random_engine(rd()));
 
     // Initialize sorting object and sort list
-    Sorting *sorting = Sorting::init(list, algorithm);
+    unique_ptr<Sorting> sorting(Sorting::init(list, algorithm));
     sorting->draw_list();
     sorting->sort();
-    delete sorting;
     puts("");
 }
