@@ -1,4 +1,6 @@
+use std::env;
 
+/// Build and return list of first `n` prime numbers.
 fn build_primes(n: u32) -> Vec<u32> {
     const M: usize = 1234567;
     let mut sieve = [false; M];
@@ -19,6 +21,12 @@ fn build_primes(n: u32) -> Vec<u32> {
 }
 
 fn main() {
-    let primes = build_primes(1000);
+    // Print first `n` prime numbers (default: 10)
+    let arg = env::args().nth(1);
+    let n = match arg {
+        Some(s) => s.parse::<u32>().unwrap_or(10),
+        None => 10,
+    };
+    let primes = build_primes(n);
     println!("{:?}", primes);
 }
