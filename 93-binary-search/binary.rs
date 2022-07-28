@@ -1,6 +1,7 @@
+use colored::Colorize;
 use rand::{thread_rng, Rng};
+use regex::Regex;
 use std::collections::BTreeSet;
-use std::io::{self, Write};
 
 /// Search (by binary seach) for the value `k` in `vec`, returning
 /// the first index `i` where `vec[i] >= k` (or `vec.len()` if none).
@@ -36,25 +37,26 @@ fn main() {
         set.insert(k);
     }
     let vec = Vec::from_iter(set);
-    println!("{:?}", vec);
+    let vec_str = format!("{:?}", vec);
+    println!("{}", vec_str);
 
     for _ in 0..N {
         let k = rng.gen_range(0..M);
-        print!("Searching for value {}... ", k);
-        io::stdout().flush().unwrap();
+        print!(
+            "\nSearching for value {}... ",
+            k.to_string().yellow().bold()
+        );
         let i = find(&vec, k);
         if i < N && vec[i] == k {
-            println!("found! (index {})", i);
-        } else {
-            print!("not found. ");
-            if (1..=N-1).contains(&i) {
-                println!(
-                    "(between values {} (index {}) and {} (index {}))",
-                    vec[i-1], i-1, vec[i], i
-                );
-            } else {
-                println!();
-            }
+            println!("found!");
+            let re_str = format!(r"{}([,\]])", k);
+            let re = Regex::new(re_str.as_str()).unwrap();
+            let str_fmt = format!(">>> {} <<<", k);
+            let str_style = str_fmt.green().bold();
+            let rep = format!(r"{}$1", str_style);
+            let result = re.replace(&vec_str, &rep);
+            println!("{}", result);
         }
     }
+    println!();
 }
