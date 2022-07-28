@@ -1,6 +1,8 @@
+use std::cmp::{max, min};
 
 const N: usize = 8;
 
+/// Build a Vec of all possible solutions for the N-queens problem.
 fn find_solutions(queens: &mut Vec<usize>) -> Vec<[usize; 8]> {
     let mut solutions = Vec::new();
     if queens.len() == N {
@@ -22,12 +24,18 @@ fn find_solutions(queens: &mut Vec<usize>) -> Vec<[usize; 8]> {
     solutions
 }
 
+/// Check if no queen diagonally attacks current row in `j`th column.
 fn is_valid_diagonal(queens: &Vec<usize>, j: usize) -> bool {
-    true
+    for k in 1..=queens.len() {
+        let i = queens[queens.len() - k];
+        if max(i, j) - min(i, j) == k {
+            return false;
+        }
+    }
+    return true;
 }
 
 fn main() {
-    println!("Hello, world!");
     let mut queens = Vec::new();
     let solutions = find_solutions(&mut queens);
     let total = solutions.len();
