@@ -27,7 +27,20 @@ fn binary_search(vec: &Vec<i32>, l: usize, r: usize, k: i32) -> usize {
     } else { m }
 }
 
+/// Pretty-print a string representing a Vec,
+/// highlighting the value of `k` in it with terminal magic.
+fn pretty_print(vec_str: &String, k: i32) {
+    let re_str = format!(r"{}([,\]])", k);
+    let re = Regex::new(re_str.as_str()).unwrap();
+    let str_fmt = format!(">>> {} <<<", k);
+    let str_style = str_fmt.green().bold();
+    let rep = format!(r"{}$1", str_style);
+    let result = re.replace(&vec_str, &rep);
+    println!("{}", result);
+}
+
 fn main() {
+    // Generate ordered set of N distinct random numbers in range 0..M
     const M: i32 = 64;
     const N: usize = 16;
     let mut set = BTreeSet::new();
@@ -36,11 +49,13 @@ fn main() {
         let k = rng.gen_range(0..M);
         set.insert(k);
     }
+    // Create correspondent Vec from set iterator
     let vec = Vec::from_iter(set);
     let vec_str = format!("{:?}", vec);
     println!("{}", vec_str);
 
     for _ in 0..N {
+        // Search for random value in Vec
         let k = rng.gen_range(0..M);
         print!(
             "\nSearching for value {}... ",
@@ -49,13 +64,7 @@ fn main() {
         let i = find(&vec, k);
         if i < N && vec[i] == k {
             println!("found!");
-            let re_str = format!(r"{}([,\]])", k);
-            let re = Regex::new(re_str.as_str()).unwrap();
-            let str_fmt = format!(">>> {} <<<", k);
-            let str_style = str_fmt.green().bold();
-            let rep = format!(r"{}$1", str_style);
-            let result = re.replace(&vec_str, &rep);
-            println!("{}", result);
+            pretty_print(&vec_str, k);
         }
     }
     println!();
