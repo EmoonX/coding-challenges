@@ -1,10 +1,21 @@
-#include <stdbool.h>
 #include <stdio.h>
+
+/** UTF-8 multi-byte char support. */
+void process_multibyte(char *p) {
+    static char utf8_stack[4];
+    static char *q = utf8_stack;
+    *q = *p;
+    if (*p & 0x40) {
+        for (; q >= utf8_stack; q--) {
+            putchar(*q);
+        }
+    }
+    q++;
+}
 
 int main() {
     size_t SIZE = 1024;
-    char s[SIZE];
-    char *p;
+    char s[SIZE], *p;
     for (p = s; p - s < SIZE; p++) {
         *p = getchar();
         if (*p == '\n') {
@@ -13,15 +24,7 @@ int main() {
     }
     for (p--; p >= s; p--) {
         if (*p & 0x80) {
-            // UTF-8 multi-byte char support
-            char *q = p - 1;
-            while (! (*q & 0x40)) {
-                q--;
-            }
-            for (char *r = q; r <= p; r++) {
-                putchar(*r);
-            }
-            p = q;
+            process_multibyte(p);
         } else {
             putchar(*p);
         }
