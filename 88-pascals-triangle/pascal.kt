@@ -1,28 +1,27 @@
 import kotlin.system.exitProcess
 
 /**
- *  Draws `i`th Pascal's row using `i-1`th as basis.
- *  Returns `i`th row array as result.
+ * Draws `i`th Pascal's row using the `i-1`th as basis.
+ * Returns `i`th row array as result.
  */
-fun drawRow(i: Int, lastRow: Array<Long>): Array<Long> {
-    val row = Array(i+1, {0L})
+fun drawRow(i: Int, row: ArrayList<Long>) {
+    var prev = 0L
     for (j in 0..i) {
-        if (j == 0 || j == i) {
-            // First and last values are always 1
+        if (j == i) {
+            // Last value is always 1
             print("  1")
-            row[j] = 1L
+            row.add(1)
         } else {
             // j-th value equals sum of the top two values; actual
             // "cell" length depends on # of digits (but always >= 3)
-            val k = lastRow[j-1] + lastRow[j]
+            val k = prev + row[j]
+            prev = row[j]
+            row[j] = k
             val len = maxOf(k.toString().length, 2) + 1
             val formatStr = "%%%dd".format(len)
             print(formatStr.format(k))
-            row[j] = k
         }
     }
-    println()
-    return row
 }
 
 fun main(args: Array<String>) {
@@ -33,13 +32,13 @@ fun main(args: Array<String>) {
         println("    Ex: kotlin pascal.jar 42")
         exitProcess(1)
     }
-    var n = args[0].toInt();
+    val n = args[0].toInt()
     
     // Print Pascal's triangle rows (from 0th to nth)
-    println(" 0 ->  1")
-    var lastRow = Array(1, {1L})
-    for (i in 1..n) {
+    val row = ArrayList<Long>()
+    for (i in 0..n) {
         print("%2d ->".format(i))
-        lastRow = drawRow(i, lastRow)
+        drawRow(i, row)
+        println()
     }
 }
