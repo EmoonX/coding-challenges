@@ -1,22 +1,21 @@
 use std::cmp::{max, min};
+use std::env::args;
 
-const N: usize = 8;
-
-/// Build a Vec of all possible solutions for the N-queens problem.
-fn find_solutions(queens: &mut Vec<usize>) -> Vec<[usize; 8]> {
+/// Build a Vec of all possible solutions for the `n`-queens problem.
+fn find_solutions(n: usize, queens: &mut Vec<usize>) -> Vec<Vec<usize>> {
     let mut solutions = Vec::new();
-    if queens.len() == N {
-        let mut arr = [0; N];
+    if queens.len() == n {
+        let mut vec = vec![0; n];
         for (i, j) in queens.iter().enumerate() {
-            arr[i] = *j;
+            vec[i] = *j;
         }
-        solutions.push(arr);
+        solutions.push(vec);
         return solutions;
     }
-    for j in 1..=N {
+    for j in 1..=n {
         if (! queens.contains(&j)) && is_valid_diagonal(queens, j) {
             queens.push(j);
-            let mut vec = find_solutions(queens);
+            let mut vec = find_solutions(n, queens);
             solutions.append(&mut vec);
             queens.pop();
         }
@@ -36,8 +35,13 @@ fn is_valid_diagonal(queens: &Vec<usize>, j: usize) -> bool {
 }
 
 fn main() {
+    let arg = args().nth(1);
+    let n = match arg {
+        Some(s) => s.parse().unwrap_or(8),
+        None => 8,
+    };
     let mut queens = Vec::new();
-    let solutions = find_solutions(&mut queens);
+    let solutions = find_solutions(n, &mut queens);
     let total = solutions.len();
     for sol in solutions {
         println!("{:?}", sol);
