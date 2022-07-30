@@ -1,24 +1,53 @@
-class Stack {
+/**
+ * Simple stack implementation with `push`/`pop` methods.
+ */
+class Stack<T> {
 
-    val tokens = ArrayDeque<String>()
+    /** Inner deque for holding stack values. */
+    private val tokens = ArrayDeque<T>()
 
-    fun push(value: String) {
+    /** Push a value to the stack. */
+    fun push(value: T) {
         tokens.addLast(value)
     }
 
-    fun pop(): String {
+    /** Removes top value from stack and returns it. */
+    fun pop(): T {
         val last = tokens.removeLast()
         return last
     }
 }
 
-fun calculate(postfix: String): String? {
+/** 
+ * Evaluates postfix expression.
+ */
+fun evaluate(postfix: String): Int {
     val tokens = postfix.split(" ")
-    val stack = Stack()
+    val stack = Stack<Int>()
     for (token in tokens) {
-        stack.push(token)
+        var value = token.toIntOrNull()
+        if (value == null) {
+            value = calculate(token, stack)
+        }
+        stack.push(value)
     }
     return stack.pop()
+}
+
+/**
+ * Returns result of operator `op` applied
+ * to the topmost two stack values.
+ */
+fun calculate(op: String, stack: Stack<Int>): Int {
+    val y = stack.pop()
+    val x = stack.pop()
+    return when (op) {
+        "+" -> x + y
+        "-" -> x - y
+        "*" -> x * y
+        "/" -> x / y
+        else -> 0
+    }
 }
 
 fun main() {
@@ -26,8 +55,8 @@ fun main() {
     while (postfix != "0") {
         print(">>> ")
         postfix = readLine()!!
-        val result = calculate(postfix)
-        if (result != "") {
+        if (postfix != "") {
+            val result = evaluate(postfix)
             println(result)
         }
     }
