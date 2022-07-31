@@ -1,6 +1,7 @@
+from collections.abc import Generator
 import sys
 
-def collatz(n: int) -> int:
+def collatz(n: int) -> Generator[int, None, None]:
     '''Generates next element in the Collatz sequence;
     being it `⌊n/2⌋` if `n` is even, or `3n + 1` if `n` is odd'''
     while True:
