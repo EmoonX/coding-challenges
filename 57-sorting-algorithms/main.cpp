@@ -28,7 +28,7 @@ int main(int argc, char **argv) {
     shuffle(list.begin(), list.end(), default_random_engine(rd()));
 
     // Initialize sorting object and sort list
-    unique_ptr<Sorting> sorting(Sorting::init(list, algorithm));
+    auto sorting = Sorting::init(list, algorithm);
     sorting->draw_list();
     sorting->sort();
     puts("");

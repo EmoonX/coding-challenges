@@ -6,20 +6,22 @@
 
 using namespace std;
 
-Sorting * Sorting::init(const vector<int> &list, const string &algorithm) {
-    Sorting *sorting;
+unique_ptr<Sorting> Sorting::init(
+    const vector<int> &list, const string &algorithm
+) {
+    unique_ptr<Sorting> sorting;
     if (algorithm == "bubble") {
-        sorting = new Bubble;
+        sorting = make_unique<Bubble>();
     } else if (algorithm == "selection") {
-        sorting = new Selection;
+        sorting = make_unique<Selection>();
     } else if (algorithm == "insertion") {
-        sorting = new Insertion;
+        sorting = make_unique<Insertion>();
     } else if (algorithm == "merge") {
-        sorting = new Merge;
+        sorting = make_unique<Merge>();
     } else if (algorithm == "quick") {
-        sorting = new Quick;
+        sorting = make_unique<Quick>();
     } else if (algorithm == "heap") {
-        sorting = new Heap;
+        sorting = make_unique<Heap>();
     } else {
         show_usage_and_exit();
     }

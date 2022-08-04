@@ -1,11 +1,12 @@
 #pragma once
 
+#include <memory>
 #include <string>
 #include <vector>
 
 #include "util.h"
 
-using std::string, std::vector;
+using std::string, std::unique_ptr, std::vector;
 
 /** Base class for sorting algorithms. */
 class Sorting {
@@ -14,7 +15,7 @@ public:
      * Initializes list and returns pointer to corresponding
      * algorithm sorting subclass.
      */
-    static Sorting * init(
+    static unique_ptr<Sorting> init(
         const vector<int> &list, const string &algorithm
     );
 
