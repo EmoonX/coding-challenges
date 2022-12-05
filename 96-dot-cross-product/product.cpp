@@ -19,7 +19,7 @@ private:
 
 public:
     /** Builds named vector from input values. */
-    Vector(const string &name, const string &input)
+    constexpr Vector(const string &name, const string &input)
         : name(name)
     {
         for (size_t l = 0, r = 0; r <= input.size(); r++) {
@@ -34,11 +34,11 @@ public:
     }
 
     /** Returns `i`-th vector component. */
-    double operator[](size_t i) const {
+    constexpr double operator[](size_t i) const {
         return vec.at(i);
     }
     /** Returns `i`-th vector component reference (for lvalue usage). */
-    double & operator[](size_t i) {
+    constexpr double & operator[](size_t i) {
         return vec.at(i);
     }
 
@@ -54,11 +54,11 @@ public:
 
     /** Calculates cross product between two vectors. 
         Returns a 3-dimensional vector. */
-    Vector cross(const Vector &v) const {
-        static vector<size_t> perm = {0, 1, 2};
+    constexpr Vector cross(const Vector &v) const {
         const Vector &u = *this;
         string name = u.name + " x " + v.name;
         Vector w(name, "0 0 0");
+        vector<size_t> perm = {0, 1, 2};
         do {            
             int inversion_count = 0;
             for (size_t k = 1; k <= 3; k++) {
@@ -67,7 +67,7 @@ public:
                 }
             }
             int factor = (inversion_count % 2 == 0) ? 1 : -1;
-            w[perm[0]] = factor * u[perm[1]] + v[perm[2]];
+            w[perm[0]] = factor * u[perm[1]] * v[perm[2]];
         } while (next_permutation(perm.begin(), perm.end()));
         return w;
     }
