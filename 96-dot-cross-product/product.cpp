@@ -1,9 +1,11 @@
 #include <algorithm>
+#include <cstdio>
 #include <iostream>
 #include <string>
 #include <vector>
 
-using namespace std;
+using std::string;
+using std::vector;
 
 /** `n`-dimensional vector. */
 class Vector {
@@ -74,18 +76,18 @@ public:
     
     /** Prints vector representation. */
     void print() const {
-        cout << name << " = [ ";
+        printf("%s = [ ", name.c_str());
         for (double x : vec) {
-            cout << x << " ";
+            printf("%g ", x);
         }
-        cout << "]" << endl;
+        puts("]");
     }
 };
 
 /** Reads values from input and returns a Vector. */
 Vector read_vector(const string &name) {
     string input;
-    getline(cin, input);
+    getline(std::cin, input);
     return Vector(name, input);
 }
 
@@ -93,10 +95,12 @@ int main() {
     // Receive inputs
     Vector u = read_vector("u");
     Vector v = read_vector("v");
-    
+
     // Calculate and print results
+    double dot = u.dot(v);
+    Vector cross = u.cross(v);
     u.print();
     v.print();
-    cout << "u . v = " << u.dot(v) << endl;
-    (u.cross(v)).print();
+    printf("u . v = %g\n", dot);
+    cross.print();
 }
