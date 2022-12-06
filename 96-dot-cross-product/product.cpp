@@ -62,14 +62,11 @@ public:
         Vector w(name, "0 0 0");
         static vector<size_t> perm = {0, 1, 2};
         do {            
-            int inversion_count = 0;
-            for (size_t k = 1; k <= 3; k++) {
-                if (perm[k-1] >= k) {
-                    inversion_count++;
-                }
-            }
+            int inversion_count = (
+                (perm[0] > perm[1]) + (perm[1] > perm[2]) + (perm[0] > perm[2])
+            );
             int factor = (inversion_count % 2 == 0) ? 1 : -1;
-            w[perm[0]] = factor * u[perm[1]] * v[perm[2]];
+            w[perm[0]] += factor * u[perm[1]] * v[perm[2]];
         } while (next_permutation(perm.begin(), perm.end()));
         return w;
     }
