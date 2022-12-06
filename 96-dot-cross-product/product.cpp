@@ -21,7 +21,7 @@ private:
 
 public:
     /** Builds named vector from input values. */
-    constexpr Vector(const string &name, const string &input)
+    Vector(const string &name, const string &input)
         : name(name)
     {
         for (size_t l = 0, r = 0; r <= input.size(); r++) {
@@ -36,16 +36,16 @@ public:
     }
 
     /** Returns `i`-th vector component. */
-    constexpr double operator[](size_t i) const {
+    double operator[](size_t i) const {
         return vec.at(i);
     }
     /** Returns `i`-th vector component reference (for lvalue usage). */
-    constexpr double & operator[](size_t i) {
+    double & operator[](size_t i) {
         return vec.at(i);
     }
 
     /** Calculates dot product between two vectors. Returns a scalar. */
-    constexpr double dot(const Vector &v) const {
+    double dot(const Vector &v) const {
         const Vector &u = *this;
         double z = 0.0;
         for (size_t i = 0; i < n; i++) {
@@ -56,11 +56,11 @@ public:
 
     /** Calculates cross product between two vectors. 
         Returns a 3-dimensional vector. */
-    constexpr Vector cross(const Vector &v) const {
+    Vector cross(const Vector &v) const {
         const Vector &u = *this;
         string name = u.name + " x " + v.name;
         Vector w(name, "0 0 0");
-        vector<size_t> perm = {0, 1, 2};
+        static vector<size_t> perm = {0, 1, 2};
         do {            
             int inversion_count = 0;
             for (size_t k = 1; k <= 3; k++) {
