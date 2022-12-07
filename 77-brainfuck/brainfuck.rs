@@ -1,4 +1,8 @@
+mod util;
+
 use std::io::{BufRead, stdin, stdout, Write};
+
+use util::colorize;
 
 /// Size of cell array.
 const N: usize = 30_000;
@@ -7,8 +11,8 @@ const N: usize = 30_000;
 struct Machine {
     /// Data cells as array of bytes.
     cells: [u8; N],
-    /// Movable data pointer.
-    ptr: *mut u8,
+    /// Current data pointer position.
+    pos: usize,
     /// Program defined as a sequence of single characters (`><+-.,[]`).
     program: String,
 }
@@ -19,7 +23,7 @@ impl Machine {
         let mut cells = [0; N];
         Self {
             cells: cells,
-            ptr: cells.as_mut_ptr(),
+            pos: 0,
             program: program,
         }
     }
@@ -50,47 +54,59 @@ impl Machine {
 
     /// Increments the data pointer (to point to the next cell to the right).
     fn increment_pointer(&self) {
-        println!("(>) Moving pointer to ");
+        println!(
+            "{} Moving pointer to the right [{}]",
+            colorize('>', "blue"), self.pos
+        );
     }
 
     /// Decrements the data pointer (to point to the next cell to the left).
     fn decrement_pointer(&self) {
-        println!("(<) Decrementing pointer");
+        println!(
+            "{} Moving pointer to the left [{}]",
+            colorize('<', "blue"), self.pos
+        );
     }
 
     /// Increments (increases by one) the byte at the data pointer.
     fn increment_byte(&self) {
-        println!("(+) Incrementing byte");
+        println!(
+            "{} Incrementing byte in [{}] to {}",
+            colorize('+', "green"), self.pos, self.cells[self.pos]
+        );
     }
 
     /// Decrements (decreases by one) the byte at the data pointer.
     fn decrement_byte(&self) {
-        println!("(-) Decrementing byte");
+        println!(
+            "{} Decrementing byte in [{}] to {}",
+            colorize('-', "red"), self.pos, self.cells[self.pos]
+        );
     }
 
     /// Outputs the byte at the data pointer. 
     fn output(&self) {
-        println!("(.) Outputting");
+        println!("{} Outputting... ", colorize('.', "yellow"));
     }
 
     /// Accepts one byte of input,
     /// storing its value in the byte at the data pointer.
     fn input(&self) {
-        println!("(,) Waiting for input...");
+        println!("{} Waiting for input...", colorize(',', "cyan"));
     }
 
     /// If the byte at the data pointer is zero, then
     /// instead of moving the instruction pointer forward to the next command,
     /// jumps it forward to the command after the matching `]` command. 
     fn open_loop(&self) {
-        println!("([) Opening loop")
+        println!("{} Opening loop", colorize('[', "purple"))
     }
 
     /// If the byte at the data pointer is nonzero, then
     /// instead of moving the instruction pointer forward to the next command,
     /// jumps it back to the command after the matching `[` command.
     fn close_loop(&self) {
-        println!("(]) Closing loop")
+        println!("{} Closing loop", colorize(']', "purple"))
     }
 }
 
