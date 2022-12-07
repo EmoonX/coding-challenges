@@ -9,14 +9,14 @@ using std::vector;
 
 /** `n`-dimensional vector. */
 class Vector {
-private:
+
     /** Vector's name. */
     const string name;
 
     /** Vector's numerical components. */
     vector<double> vec;
 
-    /** Vector's dimension (i.e number of components) */
+    /** Vector's dimension (i.e number of components). */
     size_t n;
 
 public:
@@ -33,15 +33,6 @@ public:
             }
         }
         n = vec.size();
-    }
-
-    /** Returns `i`-th vector component. */
-    double operator[](size_t i) const {
-        return vec.at(i);
-    }
-    /** Returns `i`-th vector component reference (for lvalue usage). */
-    double & operator[](size_t i) {
-        return vec.at(i);
     }
 
     /** Calculates dot product between two vectors. Returns a scalar. */
@@ -78,6 +69,16 @@ public:
             printf("%g ", x);
         }
         puts("]");
+    }
+
+private:
+    /** Returns `i`-th vector component. */
+    double operator[](size_t i) const {
+        return vec.at(i);
+    }
+    /** Returns `i`-th vector component reference (for lvalue usage). */
+    double & operator[](size_t i) {
+        return vec.at(i);
     }
 };
 
