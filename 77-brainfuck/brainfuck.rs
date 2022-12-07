@@ -5,7 +5,7 @@ const N: usize = 30_000;
 
 /// The Brainfuck machine.
 struct Machine {
-    /// Data cells as an array of bytes.
+    /// Data cells as array of bytes.
     cells: [u8; N],
     /// Movable data pointer.
     ptr: *mut u8,
@@ -15,12 +15,12 @@ struct Machine {
 
 impl Machine {
     /// Creates a new `Machine` with given input program.
-    fn new(input: String) -> Self {
+    fn new(program: String) -> Self {
         let mut cells = [0; N];
         Self {
             cells: cells,
             ptr: cells.as_mut_ptr(),
-            program: input,
+            program: program,
         }
     }
 
@@ -46,51 +46,51 @@ impl Machine {
         }
     }
     
-    // The following method descriptions were acquired from Wikipedia.
+    // (The following method descriptions were acquired from Wikipedia)
 
     /// Increments the data pointer (to point to the next cell to the right).
     fn increment_pointer(&self) {
-        println!(">: Incrementing pointer");
+        println!("(>) Moving pointer to ");
     }
 
     /// Decrements the data pointer (to point to the next cell to the left).
     fn decrement_pointer(&self) {
-        println!("<: Decrementing pointer");
+        println!("(<) Decrementing pointer");
     }
 
     /// Increments (increases by one) the byte at the data pointer.
     fn increment_byte(&self) {
-        println!("+: Incrementing byte");
+        println!("(+) Incrementing byte");
     }
 
     /// Decrements (decreases by one) the byte at the data pointer.
     fn decrement_byte(&self) {
-        println!("-: Decrementing byte");
+        println!("(-) Decrementing byte");
     }
 
     /// Outputs the byte at the data pointer. 
     fn output(&self) {
-        println!(".: Outputting");
+        println!("(.) Outputting");
     }
 
     /// Accepts one byte of input,
     /// storing its value in the byte at the data pointer.
     fn input(&self) {
-        println!(",: Waiting for input...");
+        println!("(,) Waiting for input...");
     }
 
     /// If the byte at the data pointer is zero, then
     /// instead of moving the instruction pointer forward to the next command,
     /// jumps it forward to the command after the matching `]` command. 
     fn open_loop(&self) {
-        println!("[: Opening loop")
+        println!("([) Opening loop")
     }
 
     /// If the byte at the data pointer is nonzero, then
     /// instead of moving the instruction pointer forward to the next command,
     /// jumps it back to the command after the matching `[` command.
     fn close_loop(&self) {
-        println!("]: Closing loop")
+        println!("(]) Closing loop")
     }
 }
 
