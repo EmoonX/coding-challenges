@@ -8,27 +8,35 @@ use util::colorize;
 const N: usize = 30_000;
 
 /// The Brainfuck machine.
-struct Machine {
+struct Machine<'a> {
     /// Data cells as array of bytes.
     cells: [i8; N],
     /// Current data pointer position.
     pos: usize,
+
+    program: &'a[u8],
+    ///
+    command_idx: usize,
 }
 
-impl Machine {
+impl<'a> Machine<'a> {
     /// Creates a new `Machine` with given input program.
-    fn new() -> Self {
+    pub fn new(input: &'a str) -> Self {
         Self {
             cells: [0; N],
             pos: 0,
+            program: input.as_bytes(),
+            command_idx: 0,
         }
     }
 
     /// Runs given program on machine, one command by one.
-    fn run(&mut self, program: &str) {
-        let chars = program.chars();
-        for (_i, command) in chars.enumerate() {
+    pub fn run(&mut self) {
+        while self.command_idx < self.program.len() {
+            print!(" ({:3}) ", self.command_idx);
+            let command = self.program[self.command_idx] as char;
             self.parse(command);
+            self.command_idx += 1;
         }
     }
 
@@ -41,8 +49,8 @@ impl Machine {
             '-' => self.decrement_byte(),
             '.' => self.output(),
             ',' => self.input(),
-            '[' => self.open_loop(),
-            ']' => self.close_loop(),
+            '[' => self.loop_start(),
+            ']' => self.loop_end(),
             _ => (),
         }
     }
@@ -87,12 +95,16 @@ impl Machine {
 
     /// Outputs the byte at the data pointer. 
     fn output(&self) {
+        print!(
+            "{} Outputting...",
+            colorize('.', "yellow")
+        );
         let value = self.cells[self.pos];
         let character = value as u8 as char;
-        println!(
-            "{} Outputting... {}",
-            colorize('.', "yellow"), character
-        );
+        if character.is_alphanumeric() {
+            print!("{}", character);
+        }
+        println!();
     }
 
     /// Accepts one byte of input,
@@ -112,21 +124,40 @@ impl Machine {
     /// If the byte at the data pointer is zero, then
     /// instead of moving the instruction pointer forward to the next command,
     /// jumps it forward to the command after the matching `]` command. 
-    fn open_loop(&self) {
+    fn loop_start(&mut self) {
         println!(
-            "{} Opening loop",
+            "{} Loop start",
             colorize('[', "purple")
         );
+        if self.cells[self.pos] == 0 {
+            self.jump_to_matching_bracket(1);
+        }
     }
 
     /// If the byte at the data pointer is nonzero, then
     /// instead of moving the instruction pointer forward to the next command,
     /// jumps it back to the command after the matching `[` command.
-    fn close_loop(&self) {
+    fn loop_end(&mut self) {
         println!(
-            "{} Closing loop",
+            "{} Loop end",
             colorize(']', "purple")
-        )
+        );
+        if self.cells[self.pos] != 0 {
+            self.jump_to_matching_bracket(-1);
+        }
+    }
+
+    fn jump_to_matching_bracket(&mut self, offset: i8) {
+        let mut count = offset;
+        while count != 0 {
+            let idx = (self.command_idx as isize) + (offset as isize);
+            self.command_idx = idx as usize;
+            match self.program[self.command_idx] as char {
+                '[' => count += 1,
+                ']' => count -= 1,
+                _ => ()
+            };
+        }
     }
 }
 
@@ -136,7 +167,7 @@ fn main() {
         stdout().flush().unwrap();
         let mut input = String::new();
         stdin().lock().read_line(&mut input).unwrap();
-        let mut machine = Machine::new();
-        machine.run(&input);
+        let mut machine = Machine::new(&input);
+        machine.run();
     }
 }
