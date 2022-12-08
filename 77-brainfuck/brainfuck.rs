@@ -10,7 +10,7 @@ const N: usize = 30_000;
 /// The Brainfuck machine.
 struct Machine {
     /// Data cells as array of bytes.
-    cells: [u8; N],
+    cells: [i8; N],
     /// Current data pointer position.
     pos: usize,
 }
@@ -87,7 +87,8 @@ impl Machine {
 
     /// Outputs the byte at the data pointer. 
     fn output(&self) {
-        let character = self.cells[self.pos] as char;
+        let value = self.cells[self.pos];
+        let character = value as u8 as char;
         println!(
             "{} Outputting... {}",
             colorize('.', "yellow"), character
@@ -105,7 +106,7 @@ impl Machine {
         let mut input = String::new();
         stdin().lock().read_line(&mut input).unwrap();
         let character = input.bytes().nth(0).unwrap();
-        self.cells[self.pos] = character;
+        self.cells[self.pos] = character as i8;
     }
 
     /// If the byte at the data pointer is zero, then
