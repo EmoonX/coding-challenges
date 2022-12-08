@@ -1,7 +1,10 @@
 mod util;
 
-use std::io::{BufRead, stdin, stdout, Write};
-
+use std::{
+    io::{BufRead, stdin, stdout, Write},
+    thread::sleep,
+    time::Duration,
+};
 use util::colorize;
 
 /// Size of cell array.
@@ -17,6 +20,8 @@ struct Machine<'a> {
     program: &'a[u8],
     /// Index of current command.
     command_idx: usize,
+    /// Buffer for characters outputted by `.` command.
+    output_buffer: String
 }
 
 impl<'a> Machine<'a> {
@@ -25,8 +30,9 @@ impl<'a> Machine<'a> {
         Self {
             cells: [0; N],
             pos: 0,
-            program: input.as_bytes(),
+            program: input.trim().as_bytes(),
             command_idx: 0,
+            output_buffer: String::new(),
         }
     }
 
@@ -37,6 +43,7 @@ impl<'a> Machine<'a> {
             let command = self.program[self.command_idx] as char;
             self.parse(command);
             self.command_idx += 1;
+            sleep(Duration::from_millis(2));
         }
     }
 
@@ -93,8 +100,9 @@ impl<'a> Machine<'a> {
         );
     }
 
-    /// Outputs the byte at the data pointer. 
-    fn output(&self) {
+    /// Outputs the byte at the data pointer as an character,
+    /// and adds it to the output buffer.
+    fn output(&mut self) {
         print!(
             "{} Outputting...",
             colorize('.', "yellow")
@@ -104,6 +112,7 @@ impl<'a> Machine<'a> {
         if character.is_alphanumeric() {
             print!("{}", character);
         }
+        self.output_buffer.push(character);
         println!();
     }
 
@@ -160,6 +169,15 @@ impl<'a> Machine<'a> {
                 _ => ()
             };
         }
+        println!();
+    }
+
+    /// Prints machine's output buffer content, if any.
+    pub fn show_output(&self) {
+        println!();
+        if ! self.output_buffer.is_empty() {
+            println!("{}", self.output_buffer);
+        }
     }
 }
 
@@ -171,5 +189,6 @@ fn main() {
         stdin().lock().read_line(&mut input).unwrap();
         let mut machine = Machine::new(&input);
         machine.run();
+        machine.show_output();
     }
 }
