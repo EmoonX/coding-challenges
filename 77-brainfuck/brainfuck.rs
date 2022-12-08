@@ -13,9 +13,9 @@ struct Machine<'a> {
     cells: [i8; N],
     /// Current data pointer position.
     pos: usize,
-
+    /// Program commands as slice of bytes.
     program: &'a[u8],
-    ///
+    /// Index of current command.
     command_idx: usize,
 }
 
@@ -147,11 +147,13 @@ impl<'a> Machine<'a> {
         }
     }
 
-    fn jump_to_matching_bracket(&mut self, offset: i8) {
+    /// Moves command index to matching bracket's cell in the direction
+    /// of `offset`, ignoring intermediate brackets.
+    fn jump_to_matching_bracket(&mut self, offset: isize) {
         let mut count = offset;
         while count != 0 {
-            let idx = (self.command_idx as isize) + (offset as isize);
-            self.command_idx = idx as usize;
+            let idx = (self.command_idx as isize + offset) as usize;
+            self.command_idx = idx;
             match self.program[self.command_idx] as char {
                 '[' => count += 1,
                 ']' => count -= 1,
