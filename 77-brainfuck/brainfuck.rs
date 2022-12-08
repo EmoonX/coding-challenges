@@ -87,19 +87,25 @@ impl Machine {
 
     /// Outputs the byte at the data pointer. 
     fn output(&self) {
+        let character = self.cells[self.pos] as char;
         println!(
-            "{} Outputting... ",
-            colorize('.', "yellow")
+            "{} Outputting... {}",
+            colorize('.', "yellow"), character
         );
     }
 
     /// Accepts one byte of input,
     /// storing its value in the byte at the data pointer.
-    fn input(&self) {
-        println!(
-            "{} Waiting for input...",
+    fn input(&mut self) {
+        print!(
+            "{} Waiting for input... ",
             colorize(',', "cyan")
         );
+        stdout().flush().unwrap();
+        let mut input = String::new();
+        stdin().lock().read_line(&mut input).unwrap();
+        let character = input.bytes().nth(0).unwrap();
+        self.cells[self.pos] = character;
     }
 
     /// If the byte at the data pointer is zero, then
