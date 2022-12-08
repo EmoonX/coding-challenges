@@ -13,30 +13,27 @@ struct Machine {
     cells: [u8; N],
     /// Current data pointer position.
     pos: usize,
-    /// Program defined as a sequence of single characters (`><+-.,[]`).
-    program: String,
 }
 
 impl Machine {
     /// Creates a new `Machine` with given input program.
-    fn new(program: String) -> Self {
-        let mut cells = [0; N];
+    fn new() -> Self {
         Self {
-            cells: cells,
+            cells: [0; N],
             pos: 0,
-            program: program,
         }
     }
 
-    /// Runs machine, iterating through commands.
-    fn run(&self) {
-        for c in self.program.chars() {
-            self.parse(c);
+    /// Runs given program on machine, one command by one.
+    fn run(&mut self, program: &str) {
+        let chars = program.chars();
+        for (_i, command) in chars.enumerate() {
+            self.parse(command);
         }
     }
 
     /// Parses single command.
-    fn parse(&self, command: char) {
+    fn parse(&mut self, command: char) {
         match command {
             '>' => self.increment_pointer(),
             '<' => self.decrement_pointer(),
@@ -53,23 +50,26 @@ impl Machine {
     // (The following method descriptions were acquired from Wikipedia)
 
     /// Increments the data pointer (to point to the next cell to the right).
-    fn increment_pointer(&self) {
+    fn increment_pointer(&mut self) {
+        self.pos += 1;
         println!(
-            "{} Moving pointer to the right [{}]",
+            "{} Moving pointer to the right: [{}]",
             colorize('>', "blue"), self.pos
         );
     }
 
     /// Decrements the data pointer (to point to the next cell to the left).
-    fn decrement_pointer(&self) {
+    fn decrement_pointer(&mut self) {
+        self.pos -= 1;
         println!(
-            "{} Moving pointer to the left [{}]",
+            "{} Moving pointer to the left:  [{}]",
             colorize('<', "blue"), self.pos
         );
     }
 
     /// Increments (increases by one) the byte at the data pointer.
-    fn increment_byte(&self) {
+    fn increment_byte(&mut self) {
+        self.cells[self.pos] += 1;
         println!(
             "{} Incrementing byte in [{}] to {}",
             colorize('+', "green"), self.pos, self.cells[self.pos]
@@ -77,7 +77,8 @@ impl Machine {
     }
 
     /// Decrements (decreases by one) the byte at the data pointer.
-    fn decrement_byte(&self) {
+    fn decrement_byte(&mut self) {
+        self.cells[self.pos] -= 1;
         println!(
             "{} Decrementing byte in [{}] to {}",
             colorize('-', "red"), self.pos, self.cells[self.pos]
@@ -86,37 +87,49 @@ impl Machine {
 
     /// Outputs the byte at the data pointer. 
     fn output(&self) {
-        println!("{} Outputting... ", colorize('.', "yellow"));
+        println!(
+            "{} Outputting... ",
+            colorize('.', "yellow")
+        );
     }
 
     /// Accepts one byte of input,
     /// storing its value in the byte at the data pointer.
     fn input(&self) {
-        println!("{} Waiting for input...", colorize(',', "cyan"));
+        println!(
+            "{} Waiting for input...",
+            colorize(',', "cyan")
+        );
     }
 
     /// If the byte at the data pointer is zero, then
     /// instead of moving the instruction pointer forward to the next command,
     /// jumps it forward to the command after the matching `]` command. 
     fn open_loop(&self) {
-        println!("{} Opening loop", colorize('[', "purple"))
+        println!(
+            "{} Opening loop",
+            colorize('[', "purple")
+        );
     }
 
     /// If the byte at the data pointer is nonzero, then
     /// instead of moving the instruction pointer forward to the next command,
     /// jumps it back to the command after the matching `[` command.
     fn close_loop(&self) {
-        println!("{} Closing loop", colorize(']', "purple"))
+        println!(
+            "{} Closing loop",
+            colorize(']', "purple")
+        )
     }
 }
 
 fn main() {
-    while true {
+    loop {
         print!(" ");
         stdout().flush().unwrap();
         let mut input = String::new();
         stdin().lock().read_line(&mut input).unwrap();
-        let mut machine = Machine::new(input);
-        machine.run();
+        let mut machine = Machine::new();
+        machine.run(&input);
     }
 }
