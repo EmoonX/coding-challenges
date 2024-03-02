@@ -2,6 +2,8 @@
 #include <format>
 #include <iostream>
 
+#include "../util/print.hpp"
+
 int generate_next_prime() {
     static std::array<bool, 123'456'789> sieve;
     static int k = 2;
@@ -18,10 +20,12 @@ int generate_next_prime() {
 
 int main(int argc, char* argv[]) {
     int n = std::stoi(argv[1]);
-    std::cout << std::format("> The first {} prime numbers:\n", n);
+    FANCY_PRINT("The first {} prime numbers", n);
+    PRINT("\n");
     for (int count = 1; count <= n; count++) {
         if (count == 1 or count % 10 == 0) {
-            std::cout << std::format("\n 🭮\033[7;1m {:3d} \033[0m🭬 ", count);
+            PRINT("\n");
+            FANCY_PRINT("{:3d}", count);
         }
         auto prime = generate_next_prime();
         std::cout << prime << " ";
