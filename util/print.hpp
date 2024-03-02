@@ -20,7 +20,7 @@
 #define FANCY_PRINT(fmt_outer, fmt_inner, ...) do {                         \
     auto inner_str = std::format((fmt_inner) __VA_OPT__(,) __VA_ARGS__);    \
     auto fancy_str = std::format(                                           \
-        " \U0001fb6e\033[7;1m {} \033[0m\U0001fb6c ", inner_str             \
+        "\U0001fb6e\033[7;1m {} \033[0m\U0001fb6c", inner_str               \
     );                                                                      \
     PRINT(fmt_outer, fancy_str);                                            \
 } while (0)
