@@ -7,8 +7,8 @@
 
 /** Our prime number generator. */
 struct PrimeGenerator {
-    /** The sieve of Eratosthenes. Uses `std::vector<uint8_t>` instead
-     *  of `bool` to avoid stupid specialization. */
+    /** The sieve of Eratosthenes. Uses `uint8_t` instead of `bool` to
+     *  avoid the stupid inefficient `std::vector<bool>`  specialization. */
     std::vector<uint8_t> sieve = std::vector<uint8_t>(123'456'789);
 
     /** The last-generated prime number. */
