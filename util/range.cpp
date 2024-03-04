@@ -1,6 +1,7 @@
-#include <cstdint>
 #include <iostream>
-#include <type_traits>
+
+template<typename... Types>
+concept IntegralAll = (std::is_integral<Types>::value && ...);
 
 template<typename T> requires std::integral<T>
 struct Range {
@@ -29,18 +30,22 @@ struct Range {
     }
 };
 
-template<typename T> requires std::integral<T>
-Range<T> range(T to) {
+
+template<typename T1, typename T2, typename T3 = int>
+    requires IntegralAll<T1, T2, T3>
+auto range(T1 from, T2 to, T3 step = +1)
+    -> Range<typename std::common_type<T1, T2, T3>::type>
+{
+    return (from, to, step);
+}
+
+auto range(auto to) {
     return range(0, to);
 }
 
-template<typename T> requires std::integral<T>
-Range<T> range(T from, T to, T step = +1) {
-    return {from, to, step};
-}
-
 int main() {
-    for (auto&& k : range(20, 10, -2)) {
-        std::cout << k << std::endl;
+    auto r = range(0, 1123456789U, 1);
+    for (auto k : r) {
+        //std::cout << k << std::endl;
     }
 }
