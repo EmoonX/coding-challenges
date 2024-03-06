@@ -1,4 +1,4 @@
-#include <iostream>
+#include <concepts>
 
 template<typename... Types>
 concept IntegralAll = (std::is_integral<Types>::value && ...);
@@ -23,29 +23,26 @@ struct Range {
     };
 
     iterator begin() {
-        return iterator{from, step};
+        return iterator(from, step);
     }
     iterator end() {
-        return iterator{to};
+        return iterator(to);
     }
 };
-
-
-template<typename T1, typename T2, typename T3 = int>
-    requires IntegralAll<T1, T2, T3>
-auto range(T1 from, T2 to, T3 step = +1)
-    -> Range<typename std::common_type<T1, T2, T3>::type>
-{
-    return (from, to, step);
-}
 
 auto range(auto to) {
     return range(0, to);
 }
 
+template<typename T1, typename T2, typename T3>
+    requires IntegralAll<T1, T2, T3>
+auto range(T1 from, T2 to, T3 step = +1) {
+    using T = std::common_type<T1, T2, T3>::type;
+    return Range<T>(from, to, step);
+}
+
 int main() {
-    auto r = range(0, 1123456789U, 1);
-    for (auto k : r) {
+    for (auto k : range(0, 1123456789LL, 2ULL)) {
         //std::cout << k << std::endl;
     }
 }
