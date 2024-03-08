@@ -66,51 +66,57 @@ impl<'a> Machine<'a> {
 
     /// Increments the data pointer (to point to the next cell to the right).
     fn increment_pointer(&mut self) {
-        self.pos += 1;
-        println!(
-            "{} Moving pointer to the right: [{}]",
-            colorize('>', "blue"), self.pos
+        self.print_command(
+            '>', "blue",
+            format!("Moving pointer to the right: [{}]\n", self.pos)
         );
+        self.pos += 1;
     }
 
     /// Decrements the data pointer (to point to the next cell to the left).
     fn decrement_pointer(&mut self) {
-        self.pos -= 1;
-        println!(
-            "{} Moving pointer to the left:  [{}]",
-            colorize('<', "blue"), self.pos
+        self.print_command(
+            '<', "blue",
+            format!("Moving pointer to the left: [{}]\n", self.pos)
         );
+        self.pos -= 1;
     }
 
     /// Increments (increases by one) the byte at the data pointer.
     fn increment_byte(&mut self) {
-        self.cells[self.pos] += 1;
-        println!(
-            "{} Incrementing byte in [{}] to {}",
-            colorize('+', "green"), self.pos, self.cells[self.pos]
+        self.print_command(
+            '+', "green",
+            format!(
+                "Incrementing byte in [{}] to {}\n",
+                self.pos, self.cells[self.pos]
+            )
         );
+        self.cells[self.pos] += 1;
     }
 
     /// Decrements (decreases by one) the byte at the data pointer.
     fn decrement_byte(&mut self) {
-        self.cells[self.pos] -= 1;
-        println!(
-            "{} Decrementing byte in [{}] to {}",
-            colorize('-', "red"), self.pos, self.cells[self.pos]
+        self.print_command(
+            '-', "red",
+            format!(
+                "Decrementing byte in [{}] to {}\n",
+                self.pos, self.cells[self.pos]
+            )
         );
+        self.cells[self.pos] -= 1;
     }
 
     /// Outputs the byte at the data pointer as an character,
     /// and adds it to the output buffer.
     fn output(&mut self) {
-        print!(
-            "{} Outputting...",
-            colorize('.', "yellow")
-        );
+        self.print_command(
+            '.', "yellow",
+            "Outputting... ".to_string()
+        );        
         let value = self.cells[self.pos];
         let character = value as u8 as char;
         if character.is_alphanumeric() {
-            print!("{}", character);
+            print!("{}", colorize(character, "white"));
         }
         self.output_buffer.push(character);
         println!();
@@ -119,9 +125,9 @@ impl<'a> Machine<'a> {
     /// Accepts one byte of input,
     /// storing its value in the byte at the data pointer.
     fn input(&mut self) {
-        print!(
-            "{} Waiting for input... ",
-            colorize(',', "cyan")
+        self.print_command(
+            ',', "cyan",
+            "Waiting for input... ".to_string()
         );
         stdout().flush().unwrap();
         let mut input = String::new();
@@ -134,9 +140,9 @@ impl<'a> Machine<'a> {
     /// instead of moving the instruction pointer forward to the next command,
     /// jumps it forward to the command after the matching `]` command. 
     fn loop_start(&mut self) {
-        println!(
-            "{} Loop start",
-            colorize('[', "purple")
+        self.print_command(
+            '[', "purple",
+            "Loop start\n".to_string()
         );
         if self.cells[self.pos] == 0 {
             self.jump_to_matching_bracket(1);
@@ -147,9 +153,9 @@ impl<'a> Machine<'a> {
     /// instead of moving the instruction pointer forward to the next command,
     /// jumps it back to the command after the matching `[` command.
     fn loop_end(&mut self) {
-        println!(
-            "{} Loop end",
-            colorize(']', "purple")
+        self.print_command(
+            ']', "purple",
+            "Loop end\n".to_string()
         );
         if self.cells[self.pos] != 0 {
             self.jump_to_matching_bracket(-1);
@@ -170,6 +176,11 @@ impl<'a> Machine<'a> {
             };
         }
         println!();
+    }
+
+    /// Prints command's symbol and message
+    fn print_command(&mut self, symbol: char, color: &str, message: String) {
+        print!("{} {}", colorize(symbol, color), message);
     }
 
     /// Prints machine's output buffer content, if any.
