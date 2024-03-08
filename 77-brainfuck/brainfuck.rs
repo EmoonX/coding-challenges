@@ -20,6 +20,8 @@ struct Machine<'a> {
     program: &'a[u8],
     /// Index of current command.
     command_idx: usize,
+    /// Current loop depth, starting at zero.
+    loop_depth: usize,
     /// Buffer for characters outputted by `.` command.
     output_buffer: String
 }
@@ -32,6 +34,7 @@ impl<'a> Machine<'a> {
             pos: 0,
             program: input.trim().as_bytes(),
             command_idx: 0,
+            loop_depth: 0,
             output_buffer: String::new(),
         }
     }
@@ -62,7 +65,7 @@ impl<'a> Machine<'a> {
         }
     }
     
-    // (The following method descriptions were acquired from Wikipedia)
+    // --- (the following method descriptions were acquired from Wikipedia)
 
     /// Increments the data pointer (to point to the next cell to the right).
     fn increment_pointer(&mut self) {
@@ -116,7 +119,7 @@ impl<'a> Machine<'a> {
         let value = self.cells[self.pos];
         let character = value as u8 as char;
         if character.is_alphanumeric() {
-            print!("{}", colorize(character, "white"));
+            print!("{}", colorize(character.to_string(), "white"));
         }
         self.output_buffer.push(character);
         println!();
@@ -140,11 +143,17 @@ impl<'a> Machine<'a> {
     /// instead of moving the instruction pointer forward to the next command,
     /// jumps it forward to the command after the matching `]` command. 
     fn loop_start(&mut self) {
-        self.print_command(
-            '[', "purple",
-            "Loop start\n".to_string()
-        );
-        if self.cells[self.pos] == 0 {
+        if self.cells[self.pos] != 0 {
+            self.print_command(
+                '[', "purple",
+                "Loop start\n".to_string()
+            );
+            self.loop_depth += 1;
+        } else {
+            self.print_command(
+                '[', "gray",
+                "Loop start... not\n".to_string()
+            );
             self.jump_to_matching_bracket(1);
         }
     }
@@ -153,14 +162,22 @@ impl<'a> Machine<'a> {
     /// instead of moving the instruction pointer forward to the next command,
     /// jumps it back to the command after the matching `[` command.
     fn loop_end(&mut self) {
-        self.print_command(
-            ']', "purple",
-            "Loop end\n".to_string()
-        );
-        if self.cells[self.pos] != 0 {
+        if self.cells[self.pos] == 0 {
+            self.loop_depth -= 1;
+            self.print_command(
+                ']', "purple",
+                "Loop end\n".to_string()
+            );
+        } else {
+            self.print_command(
+                ']', "gray",
+                "Loop end... not\n".to_string()
+            );
             self.jump_to_matching_bracket(-1);
         }
     }
+
+    // --- (descriptions end)
 
     /// Moves command index to matching bracket's cell in the direction
     /// of `offset`, ignoring intermediate brackets.
@@ -175,12 +192,13 @@ impl<'a> Machine<'a> {
                 _ => ()
             };
         }
-        println!();
     }
 
-    /// Prints command's symbol and message
+    /// Prints command's symbol and message.
     fn print_command(&mut self, symbol: char, color: &str, message: String) {
-        print!("{} {}", colorize(symbol, color), message);
+        let label = colorize(format!(" {} ", symbol), color);
+        print!("{}", " ".repeat(4 * self.loop_depth));
+        print!("{} {}", label, message);
     }
 
     /// Prints machine's output buffer content, if any.
